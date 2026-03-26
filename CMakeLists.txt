@@ -18,10 +18,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Add the main executable
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} 
+    src/main.cpp 
+    src/AnomalyDetector.cpp
+)
 
 # --- TESTING ---
 enable_testing()
-add_executable(unit_tests tests/test_anomaly_detector.cpp)
-# Link GTest, GMock, and a main function automatically
+add_executable(unit_tests 
+    tests/test_anomaly_detector.cpp 
+    src/AnomalyDetector.cpp
+)
 target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gmock)
