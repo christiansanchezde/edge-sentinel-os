@@ -17,3 +17,15 @@ Edge Sentinel OS is a C++ Linux application designed for edge computing and AI i
 * **Edge AI:** NPU-accelerated inference using Rockchip RKNN.
 * **Web UI:** Python-based dashboard for data visualization.
 * **Quality Assurance:** Built with CMake and tested with Google Test.
+
+## Testing
+The project uses **Test-Driven Development (TDD)** and adheres to strict Dependency Injection to allow for hardware mocking. 
+* **Framework:** Google Test (`gtest`) and Google Mock (`gmock`).
+* **Execution:** Tests are compiled for the ARM64 target. To run the test suite, SSH into the Orange Pi and execute:
+    ```bash
+    ~/edge-sentinel-os/build/tests/unit_tests
+    ```
+* **Filtering:** To run a specific test, use the standard GTest filter flag:
+    ```bash
+    ./unit_tests --gtest_filter="AnomalyDetectorTest*"
+    ```
