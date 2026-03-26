@@ -18,14 +18,27 @@ Edge Sentinel OS is a C++ Linux application designed for edge computing and AI i
 * **Web UI:** Python-based dashboard for data visualization.
 * **Quality Assurance:** Built with CMake and tested with Google Test.
 
-## Testing
-The project uses **Test-Driven Development (TDD)** and adheres to strict Dependency Injection to allow for hardware mocking. 
+## Testing & Local Development
+The project uses **Test-Driven Development (TDD)** and adheres to strict Dependency Injection. Because the hardware is abstracted via interfaces (HAL), the core logic can be compiled and tested locally on any host machine without needing the physical Orange Pi or sensors.
+
 * **Framework:** Google Test (`gtest`) and Google Mock (`gmock`).
-* **Execution:** Tests are compiled for the ARM64 target. To run the test suite, SSH into the Orange Pi and execute:
-    ```bash
-    ~/edge-sentinel-os/build/tests/unit_tests
-    ```
-* **Filtering:** To run a specific test, use the standard GTest filter flag:
-    ```bash
-    ./unit_tests --gtest_filter="AnomalyDetectorTest*"
-    ```
+
+### Local Testing (WSL / Host)
+Use the provided `manage.sh` script to quickly compile and test the business logic on your development machine:
+```bash
+./manage.sh build   # Compiles the code locally
+./manage.sh test    # Runs the unit tests
+./manage.sh clean   # Wipes the local build directory
+./manage.sh all     # Cleans, builds, and tests in one go
+```
+### Remote Execution (Orange Pi)
+To run the test suite on the actual ARM64 edge target:
+
+Trigger the VS Code Build Task (Ctrl+Shift+B) to sync and compile on the Pi.
+
+SSH into the Pi and execute:
+
+```bash
+~/edge-sentinel-os/build/tests/unit_tests
+```
+---
