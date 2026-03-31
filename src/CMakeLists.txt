@@ -3,6 +3,7 @@ add_library(app_core
     AnomalyDetector.cpp
     hal/BME280.cpp
     ConfigManager.cpp
+    Logger.cpp
 )
 
 target_compile_definitions(app_core PRIVATE 
