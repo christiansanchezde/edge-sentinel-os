@@ -12,13 +12,13 @@ namespace edge::core {
 
 ConfigManager::ConfigManager() {
     // Set default fallbacks and bake in the compile-time FW version
-    currentConfig.fwVersion = PROJECT_FW_VERSION;
-    currentConfig.i2cBus = "/dev/i2c-0";
-    currentConfig.i2cAddress = 0x77;
-    currentConfig.logLevel = "INFO";
+    current_config_.fwVersion = PROJECT_FW_VERSION;
+    current_config_.i2cBus = "/dev/i2c-0";
+    current_config_.i2cAddress = 0x77;
+    current_config_.logLevel = "INFO";
 }
 
-bool ConfigManager::load(const std::string& filepath) {
+bool ConfigManager::Load(const std::string& filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) {
         std::cerr << "[Config] WARNING: Could not open " << filepath << ". Using defaults.\n";
@@ -38,12 +38,12 @@ bool ConfigManager::load(const std::string& filepath) {
                 
                 // Route the values to the struct
                 if (key == "I2C_BUS") {
-                    currentConfig.i2cBus = value;
+                    current_config_.i2cBus = value;
                 } else if (key == "I2C_ADDRESS") {
                     // Convert hex string (e.g., "0x77" or "77") to integer
-                    currentConfig.i2cAddress = std::stoi(value, nullptr, 16);
+                    current_config_.i2cAddress = std::stoi(value, nullptr, 16);
                 } else if (key == "LOG_LEVEL") {
-                    currentConfig.logLevel = value;
+                    current_config_.logLevel = value;
                 }
             }
         }

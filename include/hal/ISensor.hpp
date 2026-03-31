@@ -13,10 +13,10 @@ public:
     virtual ~ISensor() = default;
     
     // Initializes the sensor (e.g., sets up I2C)
-    virtual bool init() = 0;
+    virtual bool Init() = 0;
     
     // Reads current data from the sensor
-    virtual SensorData readData() = 0;
+    virtual SensorData ReadData() = 0;
 };
 
 } // namespace edge::hal

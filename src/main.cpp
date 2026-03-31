@@ -1,9 +1,9 @@
-#include <iostream>
 #include <thread>
 #include <chrono>
 #include "hal/BME280.hpp"
 #include "AnomalyDetector.hpp"
 #include "ConfigManager.hpp"
+#include "Logger.hpp"
 
 using namespace edge::hal;
 using namespace edge::app;
@@ -11,43 +11,46 @@ using namespace edge::core;
 
 int main() {
     // 1. Load Configuration
-    auto& configMgr = ConfigManager::getInstance();
-    configMgr.load("config.env");
-    const AppConfig& config = configMgr.getConfig();
+    auto& config_mgr = ConfigManager::GetInstance();
+    config_mgr.Load("config.env");
+    const AppConfig& config = config_mgr.GetConfig();
 
-    std::cout << "======================================\n";
-    std::cout << " Edge Sentinel OS\n";
-    std::cout << " Firmware Version: " << config.fwVersion << "\n";
-    std::cout << "======================================\n";
+    // 2. Configure Logger based on the .env file
+    Logger::GetInstance().SetLevelFromString(config.logLevel);
 
-    // 2. Initialize Hardware using dynamic configuration
-    BME280 mySensor(config.i2cBus, config.i2cAddress); 
+    LOG_INFO("======================================");
+    LOG_INFO(" Edge Sentinel OS");
+    LOG_INFO(" Firmware Version: " << config.fwVersion);
+    LOG_INFO("======================================");
+
+    // 3. Initialize Hardware
+    BME280 my_sensor(config.i2cBus, config.i2cAddress); 
     
-    if (!mySensor.init()) {
-        std::cerr << "[FATAL] Sensor initialization failed on " << config.i2cBus << ". Exiting.\n";
+    if (!my_sensor.Init()) {
+        LOG_FATAL("Sensor initialization failed on " << config.i2cBus << ". Exiting.");
         return -1;
     }
 
-    // 3. Inject Dependency
-    AnomalyDetector detector(mySensor);
+    // 4. Inject Dependency
+    AnomalyDetector detector(my_sensor);
 
-    // 4. Main Application Loop
-    std::cout << "\n[INFO] Entering monitoring loop...\n";
+    // 5. Main Loop
+    LOG_INFO("Entering monitoring loop...");
     
     for (int i = 0; i < 5; ++i) { 
-        SensorData data = mySensor.readData();
+        SensorData data = my_sensor.ReadData();
         
-        std::cout << "Readings -> Temp: " << data.temperature 
-                  << "C, Humidity: " << data.humidity 
-                  << "%, Pressure: " << data.pressure << " hPa\n";
+        LOG_DEBUG("Readings -> Temp: " << data.temperature 
+                  << "C, Hum: " << data.humidity 
+                  << "%, Pres: " << data.pressure << " hPa");
 
-        if (detector.checkForFire()) {
-            std::cout << "  🚨 ANOMALY DETECTED! TEMPERATURE EXCEEDS THRESHOLD 🚨\n";
+        if (detector.CheckForFire()) {
+            LOG_WARN("🚨 ANOMALY DETECTED! TEMPERATURE EXCEEDS THRESHOLD 🚨");
         }
 
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 
-    std::cout << "\n[INFO] Shutting down Edge Sentinel OS.\n";
+    LOG_INFO("Shutting down Edge Sentinel OS.");
     return 0;
 }

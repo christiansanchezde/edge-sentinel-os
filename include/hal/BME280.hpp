@@ -7,12 +7,12 @@ namespace edge::hal {
 
 class BME280 : public ISensor {
 private:
-    std::string i2c_bus;
-    int i2c_address;
-    int file_descriptor; // Holds the Linux file handle for the I2C bus
+    std::string i2c_bus_;
+    int i2c_address_;
+    int file_descriptor_; // Holds the Linux file handle for the I2C bus
 
     // Helper method to write a byte to a specific register
-    bool writeRegister(uint8_t reg, uint8_t value);
+    bool WriteRegister(uint8_t reg, uint8_t value);
 
 public:
     /**
@@ -25,8 +25,8 @@ public:
     ~BME280() override;
 
     // Overriding the ISensor Interface
-    bool init() override;
-    SensorData readData() override;
+    bool Init() override;
+    SensorData ReadData() override;
 };
 
 } // namespace edge::hal
