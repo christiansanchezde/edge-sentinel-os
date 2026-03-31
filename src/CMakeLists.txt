@@ -2,6 +2,11 @@
 add_library(app_core 
     AnomalyDetector.cpp
     hal/BME280.cpp
+    ConfigManager.cpp
+)
+
+target_compile_definitions(app_core PRIVATE 
+    PROJECT_FW_VERSION="${PROJECT_VERSION}"
 )
 
 # 2. Create the main executable

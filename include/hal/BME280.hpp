@@ -1,6 +1,7 @@
 #pragma once
 #include "ISensor.hpp"
 #include <string>
+#include <cstdint>
 
 namespace edge::hal {
 
