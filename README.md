@@ -41,3 +41,7 @@ SSH into the Pi and execute:
 ```bash
 ~/edge-sentinel-os/build/tests/unit_tests
 ```
+
+## Documents
+
+[- orange pi user manual](https://drive.google.com/drive/folders/1QxfqUF08jZYx-cK-NrprhHpiG-4puIxd)

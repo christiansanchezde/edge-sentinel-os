@@ -1,7 +1,7 @@
 # 1. Create a library for our core application logic
 add_library(app_core 
     AnomalyDetector.cpp
-    # (Future files like BME280.cpp will go here)
+    hal/BME280.cpp
 )
 
 # 2. Create the main executable
