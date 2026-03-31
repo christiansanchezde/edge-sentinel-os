@@ -41,4 +41,3 @@ SSH into the Pi and execute:
 ```bash
 ~/edge-sentinel-os/build/tests/unit_tests
 ```
----
