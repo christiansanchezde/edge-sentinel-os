@@ -18,6 +18,19 @@ Edge Sentinel OS is a C++ Linux application designed for edge computing and AI i
 * **Web UI:** Python-based dashboard for data visualization.
 * **Quality Assurance:** Built with CMake and tested with Google Test.
 
+## Running
+
+To run the current applicaiton you need to execute the build inside the 'edge-sentinel-os' directory. The main reason is that the config.venv file lives so far here, otherwise the default will be initialized.
+
+```bash
+cd edge-sentinel-os 
+```
+and then run: 
+
+```bash
+./build/src/edge-sentinel-os
+```
+
 ## Testing & Local Development
 The project uses **Test-Driven Development (TDD)** and adheres to strict Dependency Injection. Because the hardware is abstracted via interfaces (HAL), the core logic can be compiled and tested locally on any host machine without needing the physical Orange Pi or sensors.
 

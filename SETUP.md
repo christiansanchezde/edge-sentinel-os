@@ -18,7 +18,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y git rsync ssh cmake
 ```
 
-## 🍓 2. Target Setup (Orange Pi 4 Pro)
+## 🍊 2. Target Setup (Orange Pi 4 Pro)
 
 The target machine receives the source code via `rsync`, compiles the C++ application, and executes the AI inference and Web UI.
 

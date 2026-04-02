@@ -20,5 +20,8 @@ FetchContent_MakeAvailable(googletest)
 # Add Subdirectories
 add_subdirectory(src)
 
+# Copy the config file to the build output directory
+file(COPY ${PROJECT_SOURCE_DIR}/config.env DESTINATION ${CMAKE_BINARY_DIR})
+
 enable_testing()
 add_subdirectory(tests)
