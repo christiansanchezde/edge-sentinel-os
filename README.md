@@ -6,29 +6,40 @@ This is a personal project developed during my parental leave. In the limited fr
 
 Edge Sentinel OS is a C++ Linux application designed for edge computing and AI inference. Running on an Orange Pi 4 Pro, it collects environmental data (BME280), stores it locally via SQLite, and utilizes the onboard NPU for real-time anomaly detection. A Python-based Web UI provides visualization.
 
+## Documentation
+* [System Architecture](ARCHITECTURE.md) - Details on the C++ HAL, Dependency Injection, and Mermaid diagrams.
+* [Hardware Setup](SETUP.md) - Instructions for WSL rsync, SSH keys, and Orange Pi configuration.
+
 ## Hardware Requirements
-* Orange Pi 4 Pro (Ubuntu Server 24.04 LTS)
-* BME280 I2C Sensor (Temperature, Humidity, Pressure)
-* GPIO LEDs
+* **Orange Pi 4 Pro** (Ubuntu Server 24.04 LTS)
+* **BME280 I2C Sensor** (Temperature, Humidity, Pressure)
+* **GPIO LEDs** (Actuators for visual alerts)
+
+## Hardware Schematics
+> **TODO:** Insert physical wiring schematic/diagram here.
 
 ## Features
 * **C++ HAL:** Hardware Abstraction Layer for mockable I2C/GPIO interactions.
 * **Edge Storage:** Persistent local logging using SQLite3.
-* **Edge AI:** NPU-accelerated inference using Rockchip RKNN.
+* **Edge AI:** NPU-accelerated inference using Rockchip RKNN (Supports both Simulated and Hardware execution).
 * **Web UI:** Python-based dashboard for data visualization.
 * **Quality Assurance:** Built with CMake and tested with Google Test.
 
-## Running
-
-To run the current applicaiton you need to execute the build inside the 'edge-sentinel-os' directory. The main reason is that the config.venv file lives so far here, otherwise the default will be initialized.
-
-```bash
-cd edge-sentinel-os 
+## Configuration (`config.env`)
+The system uses an environment file to dynamically load hardware and application settings without recompiling the C++ binaries. A `config.env` file must exist in the execution directory and supports the following parameters:
+```env
+I2C_BUS=/dev/i2c-0
+I2C_ADDRESS=0x77
+LOG_LEVEL=DEBUG
+AI_MODE=SIMULATED  # Options: SIMULATED or HARDWARE
 ```
-and then run: 
+
+## Running
+To run the current application, you must execute the binary from within the `edge-sentinel-os` root directory. This ensures the executable can locate the `config.env` file; otherwise, it will fall back to hardcoded defaults.
 
 ```bash
-./build/src/edge-sentinel-os
+cd ~/edge-sentinel-os 
+sudo ./build/src/edge-sentinel-os
 ```
 
 ## Testing & Local Development
@@ -44,17 +55,14 @@ Use the provided `manage.sh` script to quickly compile and test the business log
 ./manage.sh clean   # Wipes the local build directory
 ./manage.sh all     # Cleans, builds, and tests in one go
 ```
+
 ### Remote Execution (Orange Pi)
 To run the test suite on the actual ARM64 edge target:
+1. Trigger the VS Code Build Task (`Ctrl+Shift+B`) to sync and compile on the Pi.
+2. SSH into the Pi and execute:
+   ```bash
+   ~/edge-sentinel-os/build/tests/unit_tests
+   ```
 
-Trigger the VS Code Build Task (Ctrl+Shift+B) to sync and compile on the Pi.
-
-SSH into the Pi and execute:
-
-```bash
-~/edge-sentinel-os/build/tests/unit_tests
-```
-
-## Documents
-
-[- orange pi user manual](https://drive.google.com/drive/folders/1QxfqUF08jZYx-cK-NrprhHpiG-4puIxd)
+## References
+* [Orange Pi 4 Pro User Manual](https://drive.google.com/drive/folders/1QxfqUF08jZYx-cK-NrprhHpiG-4puIxd)
