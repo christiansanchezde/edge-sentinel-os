@@ -4,16 +4,20 @@
 
 namespace edge::app {
 
+struct AnomalyReport {
+    bool is_fire;
+    float ai_score;
+};
+
 class AnomalyDetector {
 private:
-    edge::hal::ISensor& sensor_;     // The hardware sensor
-    edge::hal::INpuModel& npu_model_; // The Edge AI model
+    edge::hal::ISensor& sensor_;
+    edge::hal::INpuModel& npu_model_;
 
 public:
-    // Now requires both the sensor and the AI model to be injected
     AnomalyDetector(edge::hal::ISensor& sensor, edge::hal::INpuModel& npu);
     
-    bool CheckForFire();
+    AnomalyReport AnalyzeData(); 
 };
 
 } // namespace edge::app
