@@ -5,7 +5,11 @@ add_library(app_core
     hal/RknnModel.cpp
     ConfigManager.cpp
     Logger.cpp
+    hal/SqliteStorage.cpp
 )
+
+# Link external libraries to our core library
+target_link_libraries(app_core PUBLIC sqlite3)
 
 target_compile_definitions(app_core PRIVATE 
     PROJECT_FW_VERSION="${PROJECT_VERSION}"
