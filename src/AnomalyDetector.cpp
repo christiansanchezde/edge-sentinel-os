@@ -18,7 +18,7 @@ AnomalyReport AnomalyDetector::AnalyzeData() {
     // 3. Evaluate and return
     AnomalyReport report;
     report.ai_score = anomaly_score;
-    report.is_fire = (anomaly_score > 0.80f);
+    report.anomaly_detected = (anomaly_score > 0.80f);
 
     return report;
 }

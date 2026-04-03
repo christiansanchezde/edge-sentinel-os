@@ -5,7 +5,7 @@
 namespace edge::app {
 
 struct AnomalyReport {
-    bool is_fire;
+    bool anomaly_detected;
     float ai_score;
 };
 

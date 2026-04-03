@@ -9,6 +9,7 @@ struct AppConfig {
     std::string i2cBus;
     int i2cAddress;
     std::string logLevel;
+    std::string aiMode;
 };
 
 class ConfigManager {

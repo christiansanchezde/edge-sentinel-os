@@ -33,23 +33,9 @@ float RknnModel::RunInference(const SensorData& data) {
 
     LOG_DEBUG("[NPU] Feeding tensor data to NPU...");
 
-    // --- MOCK INFERENCE MATH ---
-    // Here, you would pack 'data' into an rknn_input struct, call rknn_inputs_set(), 
-    // call rknn_run(), and read the result via rknn_outputs_get().
+    // TODO: Implement rknn_inputs_set() and rknn_run() API here
 
-    // We will simulate a simple anomaly heuristic: 
-    // If temp is rising fast and humidity is dropping, the NPU outputs a high score.
-    float anomaly_score = 0.0f;
-    
-    if (data.temperature > 40.0f && data.humidity < 30.0f) {
-        anomaly_score = 0.85f; // High probability of fire/anomaly
-    } else if (data.temperature > 50.0f) {
-        anomaly_score = 0.95f; // Almost certain anomaly
-    } else {
-        anomaly_score = 0.10f; // Normal baseline
-    }
-
-    return anomaly_score;
+    return 0.0f;
 }
 
 } // namespace edge::hal

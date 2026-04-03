@@ -64,7 +64,7 @@ TEST_F(AnomalyDetectorTest, TriggersAlarmOnHighAnomalyScore) {
     AnomalyReport report = detector_->AnalyzeData();
 
     // Assert
-    EXPECT_TRUE(report.is_fire);
+    EXPECT_TRUE(report.anomaly_detected);
     EXPECT_FLOAT_EQ(report.ai_score, 0.95f);
 }
 
@@ -77,6 +77,6 @@ TEST_F(AnomalyDetectorTest, NoAlarmOnNormalScore) {
     AnomalyReport report = detector_->AnalyzeData();
 
     // Assert
-    EXPECT_FALSE(report.is_fire);
+    EXPECT_FALSE(report.anomaly_detected);
     EXPECT_FLOAT_EQ(report.ai_score, 0.10f);
 }

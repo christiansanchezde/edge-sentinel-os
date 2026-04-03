@@ -3,6 +3,7 @@ add_library(app_core
     AnomalyDetector.cpp
     hal/BME280.cpp
     hal/RknnModel.cpp
+    hal/SimulatedNpuModel.cpp
     ConfigManager.cpp
     Logger.cpp
     hal/SqliteStorage.cpp

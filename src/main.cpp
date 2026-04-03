@@ -1,8 +1,10 @@
+#include <memory> // For std::unique_ptr
 #include <thread>
 #include <chrono>
 #include "hal/BME280.hpp"
 #include "hal/RknnModel.hpp"
-#include "hal/SqliteStorage.hpp" // Bring in the Database!
+#include "hal/SimulatedNpuModel.hpp" // Bring in the Simulator
+#include "hal/SqliteStorage.hpp"
 #include "AnomalyDetector.hpp"
 #include "ConfigManager.hpp"
 #include "Logger.hpp"
@@ -18,53 +20,56 @@ int main() {
     Logger::GetInstance().SetLevelFromString(config.logLevel);
 
     LOG_INFO("======================================");
-    LOG_INFO(" Edge Sentinel OS - AI Powered");
+    LOG_INFO(" Edge Sentinel OS (" << config.aiMode << " AI)");
     LOG_INFO(" Firmware Version: " << config.fwVersion);
     LOG_INFO("======================================");
 
-    // 1. Initialize Hardware & AI
+    // 1. Initialize Hardware Sensor
     BME280 my_sensor(config.i2cBus, config.i2cAddress); 
     if (!my_sensor.Init()) {
         LOG_FATAL("Sensor initialization failed. Exiting.");
         return -1;
     }
 
-    RknnModel my_npu;
-    if (!my_npu.LoadModel("models/fire_detection.rknn")) {
-        LOG_FATAL("Failed to load Edge AI model. Exiting.");
+    // 2. Initialize the AI Model (Factory Pattern via Config)
+    std::unique_ptr<INpuModel> ai_model;
+    
+    if (config.aiMode == "HARDWARE") {
+        LOG_INFO("Initializing Rockchip Hardware NPU...");
+        ai_model = std::make_unique<RknnModel>();
+    } else {
+        LOG_INFO("Initializing Software Simulated NPU...");
+        ai_model = std::make_unique<SimulatedNpuModel>();
+    }
+
+    if (!ai_model->LoadModel("models/fire_detection.rknn")) {
+        LOG_FATAL("Failed to load AI model. Exiting.");
         return -1;
     }
 
-    // 2. Initialize the SQLite Database
+    // 3. Initialize SQLite
     SqliteStorage local_db("edge_data.sqlite");
     if (!local_db.Init()) {
-        LOG_FATAL("Failed to initialize local database. Exiting.");
+        LOG_FATAL("Failed to initialize database. Exiting.");
         return -1;
     }
 
-    // 3. Inject Dependencies
-    AnomalyDetector detector(my_sensor, my_npu);
+    // 4. Inject Dependencies (Note the * to dereference the unique_ptr)
+    AnomalyDetector detector(my_sensor, *ai_model);
 
-    // 4. Main Application Loop
-    LOG_INFO("Entering AI monitoring loop...");
-    
+    // 5. Main Loop
+    LOG_INFO("Entering monitoring loop...");
     for (int i = 0; i < 5; ++i) { 
-        // Read sensor
         SensorData data = my_sensor.ReadData();
-        LOG_INFO("Readings -> Temp: " << data.temperature 
-                 << "C, Hum: " << data.humidity 
-                 << "%, Pres: " << data.pressure << " hPa");
+        LOG_INFO("Temp: " << data.temperature << "C, Hum: " << data.humidity << "%, Pres: " << data.pressure << " hPa");
 
-        // Analyze with NPU
         AnomalyReport report = detector.AnalyzeData();
 
-        if (report.is_fire) {
-            LOG_WARN("🚨 NPU DETECTED SEVERE ANOMALY (Score: " << report.ai_score << ") 🚨");
+        if (report.anomaly_detected) {
+            LOG_WARN("🚨 ANOMALY DETECTED (Score: " << report.ai_score << ") 🚨");
         }
 
-        // Save to Database
         local_db.LogReading(data, report.ai_score);
-
         std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 

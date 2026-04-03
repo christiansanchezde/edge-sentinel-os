@@ -44,6 +44,8 @@ bool ConfigManager::Load(const std::string& filepath) {
                     current_config_.i2cAddress = std::stoi(value, nullptr, 16);
                 } else if (key == "LOG_LEVEL") {
                     current_config_.logLevel = value;
+                } else if (key == "AI_MODE") {
+                    current_config_.aiMode = value;
                 }
             }
         }
