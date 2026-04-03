@@ -1,0 +1,59 @@
+from flask import Flask, jsonify, request, send_from_directory
+import sqlite3
+import os
+
+# Point Flask to serve the static frontend folder
+FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
+
+# The SQLite database sits at the root of the edge-sentinel-os project
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'edge_data.sqlite'))
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/api/data')
+def api_data():
+    limit = request.args.get('limit', 50, type=int)
+    try:
+        conn = get_db_connection()
+        rows = conn.execute(
+            'SELECT timestamp, temperature, humidity, pressure, anomaly_score FROM sensor_logs ORDER BY timestamp DESC LIMIT ?', 
+            (limit,)
+        ).fetchall()
+        conn.close()
+        
+        data = [dict(row) for row in reversed(rows)]
+        return jsonify({"status": "success", "data": data})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/logs')
+def api_logs():
+    try:
+        conn = get_db_connection()
+        rows = conn.execute(
+            'SELECT timestamp, anomaly_score FROM sensor_logs WHERE anomaly_score > 0.80 ORDER BY timestamp DESC LIMIT 20'
+        ).fetchall()
+        conn.close()
+        
+        logs = [{"time": row["timestamp"], "msg": f"CRITICAL: Anomaly Detected! Score: {row['anomaly_score']:.2f}"} for row in rows]
+        if not logs:
+            logs = [{"time": "Now", "msg": "System operating normally. No recent anomalies."}]
+        return jsonify({"status": "success", "logs": logs})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

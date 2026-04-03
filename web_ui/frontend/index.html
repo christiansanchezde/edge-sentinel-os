@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Sentinel OS Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="left-column">
+            <div class="main-display" id="mainDisplay">
+                
+                <div id="view-readouts" class="view-panel active">
+                    <h2>Live Sensor Readouts</h2>
+                    <div class="chart-container">
+                        <canvas id="sensorChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="view-status" class="view-panel">
+                    <h2>System Event Log</h2>
+                    <div class="log-container" id="logOutput">
+                        </div>
+                </div>
+
+            </div>
+
+            <div class="nav-bar">
+                <button class="nav-btn active" data-target="view-readouts" id="btnReadouts">📊 Readouts</button>
+                <button class="nav-btn" data-target="view-status" id="btnStatus">📝 System Status</button>
+                <button class="nav-btn toggle-sidebar" id="btnToggleSidebar">⚙️ Toggle Config</button>
+            </div>
+        </div>
+
+        <div class="right-column" id="configSidebar">
+            <div class="sidebar-content">
+                <h2>Configuration</h2>
+                <div class="config-group">
+                    <label>Time Window</label>
+                    <select id="timeWindowSelect" class="touch-select">
+                        <option value="20">Last 20 Readings</option>
+                        <option value="50" selected>Last 50 Readings</option>
+                        <option value="100">Last 100 Readings</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label>System Status</label>
+                    <div class="status-indicator online">NPU: ONLINE</div>
+                    <div class="status-indicator online">I2C: ONLINE</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/models/api.js"></script>
+    <script src="js/views/ui.js"></script>
+    <script src="js/viewmodels/dashboard.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
