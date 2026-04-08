@@ -9,11 +9,40 @@
 </head>
 <body>
     <div class="dashboard-container">
+        
         <div class="left-column">
+            
             <div class="main-display" id="mainDisplay">
                 
                 <div id="view-readouts" class="view-panel active">
                     <h2>Live Sensor Readouts</h2>
+                    
+                    <div class="kpi-row">
+                        <div class="kpi-card" title="Primary Temperature Chamber">
+                            <div class="kpi-header">
+                                <span class="kpi-icon">🌡️</span>
+                                <span class="kpi-title">CHAMBER TEMP</span>
+                            </div>
+                            <div class="kpi-value" id="val-temp">--.- °C</div>
+                        </div>
+                        
+                        <div class="kpi-card" title="Ambient Relative Humidity">
+                            <div class="kpi-header">
+                                <span class="kpi-icon">💧</span>
+                                <span class="kpi-title">HUMIDITY</span>
+                            </div>
+                            <div class="kpi-value" id="val-hum">--.- %</div>
+                        </div>
+                        
+                        <div class="kpi-card" title="Atmospheric Pressure">
+                            <div class="kpi-header">
+                                <span class="kpi-icon">🌪️</span>
+                                <span class="kpi-title">PRESSURE</span>
+                            </div>
+                            <div class="kpi-value" id="val-pres">---- hPa</div>
+                        </div>
+                    </div>
+
                     <div class="chart-container">
                         <canvas id="sensorChart"></canvas>
                     </div>
@@ -37,6 +66,7 @@
         <div class="right-column" id="configSidebar">
             <div class="sidebar-content">
                 <h2>Configuration</h2>
+                
                 <div class="config-group">
                     <label>Time Window</label>
                     <select id="timeWindowSelect" class="touch-select">
@@ -45,6 +75,7 @@
                         <option value="100">Last 100 Readings</option>
                     </select>
                 </div>
+                
                 <div class="config-group">
                     <label>System Status</label>
                     <div class="status-indicator online">NPU: ONLINE</div>
@@ -52,6 +83,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 
     <script src="js/models/api.js"></script>

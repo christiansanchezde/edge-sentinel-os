@@ -1,34 +1,79 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background-color: #121212; color: #e0e0e0; overflow: hidden; }
-.dashboard-container { display: flex; height: 100vh; width: 100vw; }
+:root {
+    /* Main HMI Variables */
+    --hmi-bg-base: #C8C8CC; /* Mid-light gray canvas */
+    --hmi-accent-color: #007BFF; /* Clear, non-alarm blue */
+    
+    /* Structural Grays */
+    --hmi-panel-bg: #E4E4E6; /* Flat light-gray for containers */
+    --hmi-border-muted: #A0A0A5; 
+    --hmi-border-contrast: #5A5A60; 
+    --hmi-text-main: #222222;
+    --hmi-text-muted: #555555;
 
-/* Left Column (Main + Nav) */
-.left-column { flex: 1; display: flex; flex-direction: column; transition: width 0.3s ease; }
+    /* Trend Charting Palette (High contrast against gray, distinct from Red/Yellow alarms) */
+    --plot-line-1: #0056B3; /* Deep Blue */
+    --plot-line-2: #0B8043; /* Forest Green */
+    --plot-line-3: #8E24AA; /* Deep Purple */
+    --plot-line-4: #0097A7; /* Cyan / Teal */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+body { background-color: var(--hmi-bg-base); color: var(--hmi-text-main); overflow: hidden; }
+
+.dashboard-container { display: flex; height: 100vh; width: 100vw; }
+.left-column { flex: 1; display: flex; flex-direction: column; }
 
 /* Zone 1: Main Display */
-.main-display { flex: 1; padding: 20px; background-color: #1a1a1a; position: relative; overflow-y: auto; display: flex; flex-direction: column; }
+.main-display { flex: 1; padding: 20px; position: relative; display: flex; flex-direction: column; overflow-y: auto; }
 .view-panel { display: none; height: 100%; flex-direction: column; }
 .view-panel.active { display: flex; }
-h2 { margin-bottom: 15px; color: #fff; border-bottom: 2px solid #333; padding-bottom: 10px; }
+h2 { margin-bottom: 15px; color: var(--hmi-text-main); border-bottom: 2px solid var(--hmi-border-muted); padding-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
 
-.chart-container { flex: 1; position: relative; width: 100%; min-height: 0; }
-.log-container { flex: 1; background: #000; padding: 15px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; overflow-y: auto; border: 1px solid #333; }
-.log-entry { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #222; }
-.log-time { color: #888; font-size: 0.9em; margin-right: 10px; }
-.log-msg.critical { color: #ff4d4d; font-weight: bold; }
+/* ----------------------------------- */
+/* BENTO GRID: KPI Row (ISA-101 Style) */
+/* ----------------------------------- */
+.kpi-row { display: flex; gap: 20px; margin-bottom: 20px; }
+
+.kpi-card {
+    flex: 1;
+    background-color: var(--hmi-panel-bg);
+    border: 2px solid var(--hmi-border-contrast);
+    padding: 20px;
+    border-radius: 4px; /* Slight rounding, keeping it industrial */
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    /* No shadow by default to maintain flat hierarchy */
+}
+
+.kpi-card:hover, .kpi-card:active {
+    border-color: var(--hmi-accent-color);
+    box-shadow: 0 0 0 2px var(--hmi-accent-color) inset; /* Visual selection feedback */
+}
+
+.kpi-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.kpi-icon { font-size: 1.2rem; filter: grayscale(100%); opacity: 0.7; }
+.kpi-title { font-weight: bold; color: var(--hmi-text-muted); font-size: 0.9rem; letter-spacing: 1px; }
+
+.kpi-value { font-size: 2.5rem; font-weight: bold; color: var(--hmi-text-main); font-family: 'Courier New', Courier, monospace; }
+
+/* Charts & Logs */
+.chart-container { flex: 1; background-color: var(--hmi-panel-bg); border: 2px solid var(--hmi-border-contrast); padding: 15px; border-radius: 4px; min-height: 0; }
+.log-container { flex: 1; background: #fff; padding: 15px; border: 2px solid var(--hmi-border-contrast); overflow-y: auto; font-family: monospace; }
+.log-entry { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--hmi-border-muted); }
+.log-time { color: var(--hmi-text-muted); margin-right: 10px; }
+.log-msg.critical { color: #D32F2F; font-weight: bold; background-color: #FFEBEE; padding: 2px 5px; } /* Color by exception! */
 
 /* Zone 2: Navigation Bar */
-.nav-bar { height: 90px; background-color: #0f0f0f; display: flex; gap: 15px; padding: 15px; border-top: 2px solid #333; }
-.nav-btn { flex: 1; background-color: #2a2a2a; color: #fff; border: 2px solid #444; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-.nav-btn:active { background-color: #555; }
-.nav-btn.active { background-color: #005A9E; border-color: #0078D4; }
+.nav-bar { height: 100px; background-color: var(--hmi-panel-bg); display: flex; gap: 20px; padding: 20px; border-top: 2px solid var(--hmi-border-contrast); }
+.nav-btn { flex: 1; background-color: #F5F5F5; color: var(--hmi-text-main); border: 2px solid var(--hmi-border-contrast); border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+.nav-btn.active { background-color: var(--hmi-accent-color); color: #fff; border-color: var(--hmi-accent-color); }
 
 /* Zone 3: Configuration Sidebar */
-.right-column { width: 320px; background-color: #202020; border-left: 2px solid #333; transition: width 0.3s ease, padding 0.3s ease; overflow: hidden; }
+.right-column { width: 340px; background-color: var(--hmi-panel-bg); border-left: 2px solid var(--hmi-border-contrast); transition: width 0.3s ease; overflow: hidden; }
 .right-column.collapsed { width: 0; border-left: none; }
-.sidebar-content { padding: 20px; width: 320px; }
-.config-group { margin-bottom: 25px; }
-.config-group label { display: block; margin-bottom: 10px; font-weight: bold; color: #aaa; }
-.touch-select { width: 100%; padding: 15px; background: #333; color: #fff; border: 1px solid #555; border-radius: 8px; font-size: 1.1rem; }
-.status-indicator { padding: 12px; margin-bottom: 10px; border-radius: 6px; text-align: center; font-weight: bold; }
-.status-indicator.online { background-color: rgba(0, 200, 83, 0.2); color: #00e676; border: 1px solid #00c853; }
+.sidebar-content { padding: 20px; width: 340px; }
+.config-group { margin-bottom: 30px; }
+.config-group label { display: block; margin-bottom: 10px; font-weight: bold; color: var(--hmi-text-muted); text-transform: uppercase; font-size: 0.9rem;}
+.touch-select { width: 100%; padding: 15px; background: #fff; border: 2px solid var(--hmi-border-contrast); font-size: 1.1rem; border-radius: 4px; }
+.status-indicator { padding: 15px; margin-bottom: 10px; text-align: center; font-weight: bold; border: 2px solid var(--hmi-border-muted); border-radius: 4px; }
+.status-indicator.online { background-color: #E8F5E9; color: #2E7D32; border-color: #4CAF50; }
