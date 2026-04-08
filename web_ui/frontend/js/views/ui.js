@@ -77,7 +77,42 @@ class UI {
     switchView(targetId) {
         document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
         document.getElementById(targetId).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        
+        // Update selection state for the new interactive containers
+        document.querySelectorAll('.nav-page-container').forEach(b => b.classList.remove('active'));
         document.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+    }
+
+    setTheme(themeName) {
+        // 1. Swap the CSS variables on the root document
+        document.documentElement.setAttribute('data-theme', themeName);
+
+        // 2. Re-extract the new CSS variables
+        const styles = getComputedStyle(document.documentElement);
+        this.colors = {
+            plot1: styles.getPropertyValue('--plot-line-1').trim(),
+            plot2: styles.getPropertyValue('--plot-line-2').trim(),
+            plot3: styles.getPropertyValue('--plot-line-3').trim(),
+            grid: styles.getPropertyValue('--hmi-border-muted').trim(),
+            text: styles.getPropertyValue('--hmi-text-main').trim()
+        };
+
+        // 3. Force Chart.js to update its colors
+        if (this.chartInstance) {
+            // Update line colors
+            this.chartInstance.data.datasets[0].borderColor = this.colors.plot1;
+            this.chartInstance.data.datasets[1].borderColor = this.colors.plot2;
+            this.chartInstance.data.datasets[2].borderColor = this.colors.plot3;
+            
+            // Update grid and text colors
+            this.chartInstance.options.scales.x.ticks.color = this.colors.text;
+            this.chartInstance.options.scales.x.grid.color = this.colors.grid;
+            this.chartInstance.options.scales.y.ticks.color = this.colors.text;
+            this.chartInstance.options.scales.y.grid.color = this.colors.grid;
+            this.chartInstance.options.scales.y1.ticks.color = this.colors.text;
+            this.chartInstance.options.plugins.legend.labels.color = this.colors.text;
+
+            this.chartInstance.update();
+        }
     }
 }

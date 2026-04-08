@@ -10,13 +10,28 @@ class DashboardViewModel {
     }
 
     bindEvents() {
-        document.getElementById('btnReadouts').addEventListener('click', () => this.view.switchView('view-readouts'));
-        document.getElementById('btnStatus').addEventListener('click', () => this.view.switchView('view-status'));
-        document.getElementById('btnToggleSidebar').addEventListener('click', () => this.view.toggleSidebar());
+        // 1. Bind the circular top-right config toggle
+        document.getElementById('btnToggleConfig').addEventListener('click', () => this.view.toggleSidebar());
 
+        // 2. Automatically bind ALL navigation containers to their targets
+        document.querySelectorAll('.nav-page-container').forEach(container => {
+            container.addEventListener('click', (e) => {
+                // Find the closest container in case they clicked the text/icon inside it
+                const targetContainer = e.target.closest('.nav-page-container');
+                const targetViewId = targetContainer.getAttribute('data-target');
+                this.view.switchView(targetViewId);
+            });
+        });
+
+        // 3. Bind the Time Window dropdown
         document.getElementById('timeWindowSelect').addEventListener('change', (e) => {
             this.dataLimit = parseInt(e.target.value);
             this.refreshData(); 
+        });
+        
+        // 4. Bind the Theme dropdown
+        document.getElementById('themeSelect').addEventListener('change', (e) => {
+            this.view.setTheme(e.target.value);
         });
     }
 
