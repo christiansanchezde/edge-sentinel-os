@@ -136,3 +136,20 @@ If you are modifying the HTML/CSS/JS and want real-time feedback without running
 1. Install the **"Live Preview"** extension by Microsoft in VS Code.
 2. Right-click `web_ui/frontend/index.html` in the file explorer and select **"Show Preview"**.
 3. The UI will render locally in VS Code and populate with simulated mock data automatically.
+
+
+### 🌐 Web Server Dependencies
+
+The Presentation Layer requires Python 3 and Flask to serve the API and dashboard. Since Ubuntu 24.04 enforces system-wide Python environment protection (PEP 668), it is recommended to install Flask via the official `apt` repository rather than `pip`.
+
+Run the following command on the Orange Pi to install the required web framework:
+```bash
+sudo apt update
+sudo apt install python3-flask
+```
+
+#### Troubleshooting
+
+make sure the port 5000 or the port where the web api is executed is not blocked by the ubuntu firewall.
+
+

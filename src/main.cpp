@@ -53,12 +53,16 @@ int main() {
         return -1;
     }
 
+    // Wire the Logger to the initialized database
+    Logger::GetInstance().SetDatabase(&local_db);
+
     // 4. Inject Dependencies (Note the * to dereference the unique_ptr)
     AnomalyDetector detector(my_sensor, *ai_model);
 
     // 5. Main Loop
     LOG_INFO("Entering monitoring loop...");
-    for (int i = 0; i < 5; ++i) { 
+    // for (int i = 0; i < 5; ++i) { 
+    for(;;) { // Infinite loop for continuous monitoring
         SensorData data = my_sensor.ReadData();
         LOG_INFO("Temp: " << data.temperature << "C, Hum: " << data.humidity << "%, Pres: " << data.pressure << " hPa");
 
