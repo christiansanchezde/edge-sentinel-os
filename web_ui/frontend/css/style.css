@@ -9,6 +9,7 @@
     --hmi-text-muted: #94A3B8;      /* Soft blue-gray for labels */
     
     --hmi-accent-color: #38BDF8;    /* Vibrant neon-blue for active/hover states */
+    --hmi-log-bg: #000000;
     
     /* Trend Charting Palette (Bright against dark background) */
     --plot-line-1: #38BDF8; /* Cyan/Blue (Matches accent) */
@@ -28,7 +29,8 @@
     --hmi-text-muted: #48484A;      /* Dark gray for labels */
     
     --hmi-accent-color: #005A9E;    /* Professional Corporate Blue */
-    
+    --hmi-log-bg: #FFFFFF;
+
     /* Trend Charting Palette (Darker colors to stand out on gray) */
     --plot-line-1: #0056B3;         /* Deep Blue */
     --plot-line-2: #0B8043;         /* Forest Green */
@@ -91,7 +93,7 @@ h2 { margin-bottom: 15px; color: var(--hmi-text-main); border-bottom: 2px solid 
 
 /* Charts & Logs */
 .chart-container { flex: 1; background-color: var(--hmi-panel-bg); border: 2px solid var(--hmi-border-contrast); padding: 15px; border-radius: 8px; min-height: 0; min-width: 0; }
-.log-container { flex: 1; background: #000; padding: 15px; border: 2px solid var(--hmi-border-contrast); border-radius: 8px; overflow-y: auto; font-family: monospace; }
+.log-container { flex: 1; background: var(--hmi-log-bg); padding: 15px; border: 2px solid var(--hmi-border-contrast); border-radius: 8px; overflow-y: auto; font-family: monospace; }
 .log-entry { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--hmi-border-muted); }
 .log-time { color: var(--hmi-text-muted); margin-right: 10px; }
 .log-msg.critical { color: #EF4444; font-weight: bold; background-color: rgba(239, 68, 68, 0.1); padding: 2px 5px; border-radius: 4px; }
