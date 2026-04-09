@@ -1,27 +1,31 @@
 #pragma once
-#include <iostream>
 #include <string>
 #include <mutex>
 #include <sstream>
+#include "hal/IDatabase.hpp"
+
+// Compile-time log levels
+#define LOG_LEVEL_DEBUG 0
+#define LOG_LEVEL_INFO  1
+#define LOG_LEVEL_WARN  2
+#define LOG_LEVEL_ERROR 3
+#define LOG_LEVEL_CRITICAL 4
+
+// Fallback if not provided by CMake
+#ifndef ACTIVE_LOG_LEVEL
+#define ACTIVE_LOG_LEVEL LOG_LEVEL_INFO
+#endif
 
 namespace edge::core {
 
-enum class LogLevel {
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR,
-    FATAL
-};
+enum class LogLevel { DEBUG = 0, INFO = 1, WARN = 2, ERROR = 3, CRITICAL = 4 };
 
 class Logger {
 private:
-    LogLevel current_level_;
     std::mutex log_mutex_;
-
-    Logger() : current_level_(LogLevel::INFO) {}
-
-    // Helper to convert enum to string
+    edge::hal::IDatabase* db_ = nullptr;
+    
+    Logger() = default;
     std::string LevelToString(LogLevel level);
 
 public:
@@ -33,22 +37,27 @@ public:
         return instance;
     }
 
-    // Set the minimum level to display
-    void SetLevel(LogLevel level) { current_level_ = level; }
-    void SetLevelFromString(const std::string& levelStr);
-
-    // The core logging function
+    void SetDatabase(edge::hal::IDatabase* db) { db_ = db; }
     void Log(LogLevel level, const std::string& file, int line, const std::string& message);
 };
 
 } // namespace edge::core
 
 // ==========================================
-// SERILOG-STYLE MACROS
+// ZERO-OVERHEAD MACROS
 // ==========================================
-// These macros automatically inject the __FILE__ and __LINE__ variables
-#define LOG_DEBUG(msg) do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::DEBUG, __FILE__, __LINE__, oss.str()); } while(0)
-#define LOG_INFO(msg)  do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::INFO,  __FILE__, __LINE__, oss.str()); } while(0)
-#define LOG_WARN(msg)  do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::WARN,  __FILE__, __LINE__, oss.str()); } while(0)
-#define LOG_ERROR(msg) do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::ERROR, __FILE__, __LINE__, oss.str()); } while(0)
-#define LOG_FATAL(msg) do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::FATAL, __FILE__, __LINE__, oss.str()); } while(0)
+#if ACTIVE_LOG_LEVEL <= LOG_LEVEL_DEBUG
+    #define LOG_DEBUG(msg) do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::DEBUG, __FILE__, __LINE__, oss.str()); } while(0)
+#else
+    #define LOG_DEBUG(msg) do {} while(0)
+#endif
+
+#if ACTIVE_LOG_LEVEL <= LOG_LEVEL_INFO
+    #define LOG_INFO(msg)  do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::INFO,  __FILE__, __LINE__, oss.str()); } while(0)
+#else
+    #define LOG_INFO(msg) do {} while(0)
+#endif
+
+#define LOG_WARN(msg)     do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::WARN,     __FILE__, __LINE__, oss.str()); } while(0)
+#define LOG_ERROR(msg)    do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::ERROR,    __FILE__, __LINE__, oss.str()); } while(0)
+#define LOG_CRITICAL(msg) do { std::ostringstream oss; oss << msg; edge::core::Logger::GetInstance().Log(edge::core::LogLevel::CRITICAL, __FILE__, __LINE__, oss.str()); } while(0)

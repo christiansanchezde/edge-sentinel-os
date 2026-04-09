@@ -43,14 +43,24 @@ def api_data():
 def api_logs():
     try:
         conn = get_db_connection()
+        # 1. Fetch the latest 50 system logs (INFO, WARN, CRITICAL, etc.)
         rows = conn.execute(
-            'SELECT timestamp, anomaly_score FROM sensor_logs WHERE anomaly_score > 0.80 ORDER BY timestamp DESC LIMIT 20'
+            'SELECT timestamp, level, tag, message FROM system_logs ORDER BY timestamp DESC LIMIT 50'
         ).fetchall()
         conn.close()
         
-        logs = [{"time": row["timestamp"], "msg": f"CRITICAL: Anomaly Detected! Score: {row['anomaly_score']:.2f}"} for row in rows]
+        # 2. Map the DB columns to the format the Frontend expects
+        logs = []
+        for row in rows:
+            # We use the 'tag' field to show which file/line the log came from
+            logs.append({
+                "time": row["timestamp"],
+                "msg": f"[{row['level']}] {row['message']} ({row['tag']})"
+            })
+
         if not logs:
-            logs = [{"time": "Now", "msg": "System operating normally. No recent anomalies."}]
+            logs = [{"time": "Now", "msg": "System log is empty. Waiting for C++ data..."}]
+            
         return jsonify({"status": "success", "logs": logs})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

@@ -168,3 +168,40 @@ The user interface is designed for physical edge deployments (touchscreens in in
 * **Bento Grid Layout:** Data is segmented into modular, highly legible cards. 
 * **Touch-First Typography:** Form controls, navigation buttons, and spacing are deliberately oversized to accommodate operators wearing gloves.
 * **Theming Engine:** The entire UI is driven by CSS Custom Properties (`:root` variables), allowing for instantaneous white-labeling or theme adjustments by changing just two base variables (`--hmi-bg-base` and `--hmi-accent-color`).
+
+### **Data Persistence & Inter-Process Communication (IPC)**
+Since the C++ Sentinel service and the Python Web UI run as independent processes, **SQLite3** is utilized as a high-concurrency data bridge.
+
+* **Concurrency Control:** The database uses **Write-Ahead Logging (WAL)** mode. This allows the Python Flask API to perform non-blocking reads of the sensor and system logs while the C++ core continues to write real-time data.
+* **Storage Management:** To protect the edge device's SD card, a **7-day retention policy** is enforced at every application startup.
+* **Database Schema:**
+
+
+| Table | Purpose | Frequency |
+| :--- | :--- | :--- |
+| `sensor_logs` | Stores raw telemetry and AI inference results. | Every 2 seconds |
+| `system_logs` | Stores internal C++ application events (Log Levels). | As needed |
+
+
+
+
+
+
+
+```mermaid
+sequenceDiagram
+    participant HW as BME280 Sensor
+    participant CPP as C++ App (Sentinel)
+    participant DB as SQLite (Disk)
+    participant PY as Python API (Flask)
+    participant UI as Web Dashboard
+
+    CPP->>HW: Read I2C Data
+    CPP->>DB: INSERT into sensor_logs
+    CPP->>DB: LOG_INFO ("Read successful") -> INSERT into system_logs
+    Note over DB: WAL Mode allows concurrent access
+    UI->>PY: GET /api/data
+    PY->>DB: SELECT * FROM sensor_logs
+    DB-->>PY: Result Set
+    PY-->>UI: JSON Data
+    ```

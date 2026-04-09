@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 
-// This macro will be provided by CMake later. Fallback if missing.
 #ifndef PROJECT_FW_VERSION
 #define PROJECT_FW_VERSION "0.0.0-unknown"
 #endif
@@ -11,11 +10,10 @@
 namespace edge::core {
 
 ConfigManager::ConfigManager() {
-    // Set default fallbacks and bake in the compile-time FW version
     current_config_.fwVersion = PROJECT_FW_VERSION;
     current_config_.i2cBus = "/dev/i2c-0";
     current_config_.i2cAddress = 0x77;
-    current_config_.logLevel = "INFO";
+    current_config_.aiMode = "SIMULATED";
 }
 
 bool ConfigManager::Load(const std::string& filepath) {
@@ -27,7 +25,6 @@ bool ConfigManager::Load(const std::string& filepath) {
 
     std::string line;
     while (std::getline(file, line)) {
-        // Skip comments and empty lines
         if (line.empty() || line[0] == '#') continue;
 
         std::istringstream is_line(line);
@@ -36,17 +33,14 @@ bool ConfigManager::Load(const std::string& filepath) {
             std::string value;
             if (std::getline(is_line, value)) {
                 
-                // Route the values to the struct
                 if (key == "I2C_BUS") {
                     current_config_.i2cBus = value;
                 } else if (key == "I2C_ADDRESS") {
-                    // Convert hex string (e.g., "0x77" or "77") to integer
                     current_config_.i2cAddress = std::stoi(value, nullptr, 16);
-                } else if (key == "LOG_LEVEL") {
-                    current_config_.logLevel = value;
                 } else if (key == "AI_MODE") {
                     current_config_.aiMode = value;
                 }
+                // Removed the LOG_LEVEL string parser here
             }
         }
     }

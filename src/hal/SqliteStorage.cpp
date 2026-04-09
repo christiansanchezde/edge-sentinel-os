@@ -26,27 +26,37 @@ bool SqliteStorage::ExecuteQuery(const std::string& query) {
 
 bool SqliteStorage::Init() {
     int exit_code = sqlite3_open(db_path_.c_str(), &db_);
-    
     if (exit_code != SQLITE_OK) {
-        LOG_ERROR("[DB] Failed to open database: " << sqlite3_errmsg(db_));
         return false;
     }
 
-    LOG_INFO("[DB] Connected to SQLite database at " << db_path_);
+    // 1. Enable WAL Mode (Write-Ahead Logging)
+    // This is the secret sauce for using SQLite as a bridge between two processes.
+    ExecuteQuery("PRAGMA journal_mode=WAL;");
 
-    // Create the table if it doesn't exist
-    // We use CURRENT_TIMESTAMP to automatically record when the data was saved
-    std::string create_table_sql = 
+    // 2. Create the tables if they don't exist
+    std::string create_tables = 
         "CREATE TABLE IF NOT EXISTS sensor_logs ("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, "
-        "temperature REAL, "
-        "humidity REAL, "
-        "pressure REAL, "
-        "anomaly_score REAL"
-        ");";
+        "id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, "
+        "temperature REAL, humidity REAL, pressure REAL, anomaly_score REAL);"
+        
+        "CREATE TABLE IF NOT EXISTS system_logs ("
+        "id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, "
+        "level TEXT, tag TEXT, message TEXT);";
 
-    return ExecuteQuery(create_table_sql);
+    if (!ExecuteQuery(create_tables)) return false;
+
+    // 3. Maintenance: Apply Retention Policy
+    // Every time the app starts, we prune data older than 7 days to save disk space.
+    LOG_INFO("Applying database retention policy (7 days)...");
+    
+    ExecuteQuery("DELETE FROM sensor_logs WHERE timestamp < datetime('now', '-7 days');");
+    ExecuteQuery("DELETE FROM system_logs WHERE timestamp < datetime('now', '-7 days');");
+    
+    // Optional: Vacuum the DB to physically reclaim disk space (can be slow on large DBs)
+    // ExecuteQuery("VACUUM;"); 
+
+    return true;
 }
 
 bool SqliteStorage::LogReading(const SensorData& data, float anomaly_score) {
@@ -65,6 +75,12 @@ bool SqliteStorage::LogReading(const SensorData& data, float anomaly_score) {
         LOG_DEBUG("[DB] Logged reading to database.");
     }
     return success;
+}
+
+bool SqliteStorage::LogSystemMessage(const std::string& level, const std::string& tag, const std::string& message) {
+    std::lock_guard<std::mutex> lock(db_mutex_);
+    std::string sql = "INSERT INTO system_logs (level, tag, message) VALUES ('" + level + "', '" + tag + "', '" + message + "');";
+    return ExecuteQuery(sql);
 }
 
 } // namespace edge::hal

@@ -20,6 +20,7 @@ public:
 
     bool Init() override;
     bool LogReading(const SensorData& data, float anomaly_score) override;
+    bool LogSystemMessage(const std::string& level, const std::string& tag, const std::string& message) override;
 };
 
 } // namespace edge::hal

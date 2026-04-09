@@ -17,7 +17,6 @@ int main() {
     auto& config_mgr = ConfigManager::GetInstance();
     config_mgr.Load("config.env");
     const AppConfig& config = config_mgr.GetConfig();
-    Logger::GetInstance().SetLevelFromString(config.logLevel);
 
     LOG_INFO("======================================");
     LOG_INFO(" Edge Sentinel OS (" << config.aiMode << " AI)");
@@ -27,7 +26,7 @@ int main() {
     // 1. Initialize Hardware Sensor
     BME280 my_sensor(config.i2cBus, config.i2cAddress); 
     if (!my_sensor.Init()) {
-        LOG_FATAL("Sensor initialization failed. Exiting.");
+        LOG_CRITICAL("Sensor initialization failed. Exiting.");
         return -1;
     }
 
@@ -43,14 +42,14 @@ int main() {
     }
 
     if (!ai_model->LoadModel("models/fire_detection.rknn")) {
-        LOG_FATAL("Failed to load AI model. Exiting.");
+        LOG_CRITICAL("Failed to load AI model. Exiting.");
         return -1;
     }
 
     // 3. Initialize SQLite
     SqliteStorage local_db("edge_data.sqlite");
     if (!local_db.Init()) {
-        LOG_FATAL("Failed to initialize database. Exiting.");
+        LOG_CRITICAL("Failed to initialize database. Exiting.");
         return -1;
     }
 
