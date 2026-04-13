@@ -54,6 +54,7 @@ Use the provided `manage.sh` script to quickly compile and test the business log
 ./manage.sh test    # Runs the unit tests
 ./manage.sh clean   # Wipes the local build directory
 ./manage.sh all     # Cleans, builds, and tests in one go
+./manage.sh run     # Runs the application (including the web api)
 ```
 
 ### Remote Execution (Orange Pi)
@@ -63,6 +64,16 @@ To run the test suite on the actual ARM64 edge target:
    ```bash
    ~/edge-sentinel-os/build/tests/unit_tests
    ```
+
+### How to stop the process
+open a second separate ssh terminal and run the following commands:
+```bash
+sudo pkill -f edge-sentinel-os
+pkill -f app.py
+```
+
+
+
 
 ## References
 * [Orange Pi 4 Pro User Manual](https://drive.google.com/drive/folders/1QxfqUF08jZYx-cK-NrprhHpiG-4puIxd)

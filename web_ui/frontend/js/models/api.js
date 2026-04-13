@@ -25,4 +25,13 @@ class DataModel {
             return { status: 'success', logs: [{ time: new Date().toISOString(), msg: "Waiting for Flask server..." }] };
         }
     }
+
+    async fetchSysInfo() {
+        try {
+            const response = await fetch('/api/sysinfo');
+            return await response.json();
+        } catch (e) {
+            return { status: 'error' };
+        }
+    }
 }

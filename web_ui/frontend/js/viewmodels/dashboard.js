@@ -47,7 +47,14 @@ class DashboardViewModel {
         }
     }
 
-    startPolling() {
+    async startPolling() {
+        // Fetch SysInfo once on load
+        const sysRes = await this.model.fetchSysInfo();
+        if (sysRes.status === 'success') {
+            document.getElementById('badge-fw').innerText = `FW: ${sysRes.data.FW_VERSION || '1.0.0'}`;
+            document.getElementById('badge-ai').innerText = `AI MODE: ${sysRes.data.AI_MODE}`;
+        }
+
         this.refreshData(); 
         this.pollingInterval = setInterval(() => this.refreshData(), 2000); 
     }

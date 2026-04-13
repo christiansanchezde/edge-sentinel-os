@@ -26,9 +26,9 @@ class UI {
         this.chartInstance = new Chart(ctx, {
             type: 'line',
             data: { labels: [], datasets: [
-                { label: 'Temp (°C)', borderColor: this.colors.plot1, backgroundColor: 'transparent', data: [], yAxisID: 'y', borderWidth: 3, pointRadius: 0 },
-                { label: 'Humidity (%)', borderColor: this.colors.plot2, backgroundColor: 'transparent', data: [], yAxisID: 'y', borderWidth: 3, pointRadius: 0 },
-                { label: 'Pressure (hPa)', borderColor: this.colors.plot3, backgroundColor: 'transparent', data: [], yAxisID: 'y1', borderWidth: 3, pointRadius: 0 }
+                { label: 'Temp (°C)', borderColor: this.colors.plot1, tension: 0.4, data: [], yAxisID: 'y', borderWidth: 3, pointRadius: 0 },
+                { label: 'Humidity (%)', borderColor: this.colors.plot2, tension: 0.4, data: [], yAxisID: 'y', borderWidth: 3, pointRadius: 0 },
+                { label: 'Press (hPa)', borderColor: this.colors.plot3, tension: 0.4, data: [], yAxisID: 'y1', borderWidth: 3, pointRadius: 0 }
             ]},
             options: {
                 responsive: true, maintainAspectRatio: false,

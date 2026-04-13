@@ -65,5 +65,25 @@ def api_logs():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/sysinfo')
+def api_sysinfo():
+    # Provide defaults
+    sysinfo = {
+        "FW_VERSION": "1.0.0", 
+        "AI_MODE": "UNKNOWN"
+    }
+    try:
+        # Read the config.env file from the project root
+        config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'config.env'))
+        with open(config_path, 'r') as f:
+            for line in f:
+                if '=' in line and not line.startswith('#'):
+                    key, val = line.strip().split('=', 1)
+                    sysinfo[key] = val
+    except Exception as e:
+        pass
+    
+    return jsonify({"status": "success", "data": sysinfo})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

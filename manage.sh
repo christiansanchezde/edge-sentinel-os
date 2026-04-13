@@ -43,6 +43,9 @@ function run_stack() {
     echo " 🚀 STARTING EDGE SENTINEL OS PIPELINE    "
     echo "=========================================="
 
+    # Ask for password UPFRONT so it doesn't freeze in the background
+    sudo -v
+
     # 1. Ensure the app is built
     if [ ! -f "./${BUILD_DIR}/src/edge-sentinel-os" ]; then
         echo "[System] Binary not found. Building first..."

@@ -14,6 +14,10 @@
             
             <div class="top-bar">
                 <div class="brand-title">EDGE SENTINEL OS</div>
+                <div class="sys-info-badges" style="display: flex; gap: 15px; margin-left: auto; margin-right: 20px;">
+                    <span class="status-indicator online" style="padding: 5px 10px; font-size: 0.8rem; margin: 0;" id="badge-fw">FW: Loading...</span>
+                    <span class="status-indicator online" style="padding: 5px 10px; font-size: 0.8rem; margin: 0; background-color: rgba(56, 189, 248, 0.1); color: var(--hmi-accent-color); border-color: var(--hmi-accent-color);" id="badge-ai">AI: Loading...</span>
+                </div>
                 <button class="circular-btn" id="btnToggleConfig" title="Toggle Configuration Sidebar">
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </button>
@@ -66,7 +70,7 @@
                     <label>Theme Mode</label>
                     <select id="themeSelect" class="touch-select">
                         <option value="dark" selected>Dark (Slate)</option>
-                        <option value="light">Light (ISA-101 Gray)</option>
+                        <option value="light">Light </option>
                     </select>
                 </div>
                 <div class="config-group">
