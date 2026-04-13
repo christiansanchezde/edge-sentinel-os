@@ -76,9 +76,10 @@
                 <div class="config-group">
                     <label>Time Window</label>
                     <select id="timeWindowSelect" class="touch-select">
-                        <option value="20">Last 20 Readings</option>
-                        <option value="50" selected>Last 50 Readings</option>
-                        <option value="100">Last 100 Readings</option>
+                        <option value="1">Last 1 Minute</option>
+                        <option value="5" selected>Last 5 Minutes</option>
+                        <option value="10">Last 10 Minutes</option>
+                        <option value="60">Last 60 Minutes</option>
                     </select>
                 </div>
                 <div class="config-group">
@@ -90,9 +91,9 @@
         </div>
     </div>
 
-    <script src="js/models/api.js"></script>
-    <script src="js/views/ui.js"></script>
-    <script src="js/viewmodels/dashboard.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/models/api.js?v=2"></script>
+    <script src="js/views/ui.js?v=2"></script>
+    <script src="js/viewmodels/dashboard.js?v=2"></script>
+    <script src="js/main.js?v=2"></script>
 </body>
 </html>

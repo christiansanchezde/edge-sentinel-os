@@ -25,17 +25,28 @@ def index():
 
 @app.route('/api/data')
 def api_data():
-    limit = request.args.get('limit', 50, type=int)
+    minutes = request.args.get('minutes', 5, type=int)
+    since = request.args.get('since') # e.g., "2026-04-13 10:00:00"
+    
     try:
         conn = get_db_connection()
-        rows = conn.execute(
-            'SELECT timestamp, temperature, humidity, pressure, anomaly_score FROM sensor_logs ORDER BY timestamp DESC LIMIT ?', 
-            (limit,)
-        ).fetchall()
+        
+        # Base query: Get data within the time window
+        query = "SELECT timestamp, temperature, humidity, pressure, anomaly_score FROM sensor_logs WHERE timestamp >= datetime('now', ?)"
+        params = [f'-{minutes} minutes']
+        
+        # Delta query: If the frontend gave us a timestamp, ONLY get newer rows
+        if since:
+            query += " AND timestamp > ?"
+            params.append(since)
+            
+        # Ensure chronological order for the chart (oldest to newest)
+        query += " ORDER BY timestamp ASC"
+        
+        rows = conn.execute(query, params).fetchall()
         conn.close()
         
-        data = [dict(row) for row in reversed(rows)]
-        return jsonify({"status": "success", "data": data})
+        return jsonify({"status": "success", "data": [dict(row) for row in rows]})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

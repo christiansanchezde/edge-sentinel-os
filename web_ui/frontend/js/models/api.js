@@ -1,18 +1,17 @@
 class DataModel {
-    async fetchSensorData(limit) {
+    async fetchSensorData(minutes, since = null) {
         try {
-            // Using relative path so it dynamically uses the Pi's IP
-            const response = await fetch(`/api/data?limit=${limit}`);
+            let url = `/api/data?minutes=${minutes}`;
+            if (since) {
+                // Encode the timestamp so spaces don't break the URL
+                url += `&since=${encodeURIComponent(since)}`; 
+            }
+            const response = await fetch(url);
             if (!response.ok) throw new Error("API Offline");
             return await response.json();
         } catch (e) {
-            console.warn("API not reachable, using mock data for UI preview.");
-            return { 
-                status: 'success', 
-                data: [
-                    { timestamp: new Date().toISOString(), temperature: 0, humidity: 0, pressure: 0 }
-                ] 
-            };
+            console.warn("API not reachable.");
+            return { status: 'error' };
         }
     }
     
