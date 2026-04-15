@@ -1,0 +1,35 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libsqlite3-dev libgtest-dev
+        # Compile GTest on the runner (required for some Ubuntu versions)
+        cd /usr/src/googletest && sudo cmake . && sudo make && sudo cp lib/*.a /usr/lib
+
+    - name: Configure and Build
+      run: |
+        mkdir -p build
+        cd build
+        # We force SIMULATED mode for the cloud build
+        cmake -DAI_MODE=SIMULATED ..
+        make -j$(nproc)
+
+    - name: Run Google Tests
+      run: |
+        cd build/tests
+        ./unit_tests
