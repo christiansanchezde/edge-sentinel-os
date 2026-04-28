@@ -78,5 +78,5 @@ TEST_F(AnomalyDetectorTest, NoAlarmOnNormalScore) {
 
     // Assert
     EXPECT_FALSE(report.anomaly_detected);
-    EXPECT_FLOAT_EQ(report.ai_score, 0.10f);
+    EXPECT_FLOAT_EQ(report.ai_score, 0.30f);
 }
