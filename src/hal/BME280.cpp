@@ -1,14 +1,17 @@
 #include "hal/BME280.hpp"
-#include "Logger.hpp"
+
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include "Logger.hpp"
 
 namespace edge::hal {
 
-BME280::BME280(const std::string& bus, int address) 
-    : i2c_bus_(bus), i2c_address_(address), file_descriptor_(-1), t_fine_(0) {}
+BME280::BME280(const std::string& bus, int address)
+    : i2c_bus_(bus), i2c_address_(address), file_descriptor_(-1), t_fine_(0) {
+}
 
 BME280::~BME280() {
     if (file_descriptor_ >= 0) close(file_descriptor_);
@@ -78,7 +81,7 @@ SensorData BME280::ReadData() {
     SensorData data = {0.0f, 0.0f, 0.0f};
     uint8_t reg = 0xF7;
     write(file_descriptor_, &reg, 1);
-    
+
     uint8_t buffer[8];
     if (read(file_descriptor_, buffer, 8) != 8) return data;
 
@@ -89,10 +92,16 @@ SensorData BME280::ReadData() {
 
     // --- TEMPERATURE MATH ---
     int32_t var1, var2;
-    var1 = ((((adc_T >> 3) - ((int32_t)calib_data_.dig_T1 << 1))) * ((int32_t)calib_data_.dig_T2)) >> 11;
-    var2 = (((((adc_T >> 4) - ((int32_t)calib_data_.dig_T1)) * ((adc_T >> 4) - ((int32_t)calib_data_.dig_T1))) >> 12) * ((int32_t)calib_data_.dig_T3)) >> 14;
+    var1 =
+        ((((adc_T >> 3) - ((int32_t)calib_data_.dig_T1 << 1))) * ((int32_t)calib_data_.dig_T2)) >>
+        11;
+    var2 = (((((adc_T >> 4) - ((int32_t)calib_data_.dig_T1)) *
+              ((adc_T >> 4) - ((int32_t)calib_data_.dig_T1))) >>
+             12) *
+            ((int32_t)calib_data_.dig_T3)) >>
+           14;
     t_fine_ = var1 + var2;
-    data.temperature = ((t_fine_ * 5 + 128) >> 8) / 100.0f; 
+    data.temperature = ((t_fine_ * 5 + 128) >> 8) / 100.0f;
 
     // --- PRESSURE MATH (64-bit precision) ---
     int64_t p_var1, p_var2, p;
@@ -100,26 +109,39 @@ SensorData BME280::ReadData() {
     p_var2 = p_var1 * p_var1 * (int64_t)calib_data_.dig_P6;
     p_var2 = p_var2 + ((p_var1 * (int64_t)calib_data_.dig_P5) << 17);
     p_var2 = p_var2 + (((int64_t)calib_data_.dig_P4) << 35);
-    p_var1 = ((p_var1 * p_var1 * (int64_t)calib_data_.dig_P3) >> 8) + ((p_var1 * (int64_t)calib_data_.dig_P2) << 12);
+    p_var1 = ((p_var1 * p_var1 * (int64_t)calib_data_.dig_P3) >> 8) +
+             ((p_var1 * (int64_t)calib_data_.dig_P2) << 12);
     p_var1 = (((((int64_t)1) << 47) + p_var1)) * ((int64_t)calib_data_.dig_P1) >> 33;
-    
-    if (p_var1 == 0) { data.pressure = 0; } // Avoid division by zero
+
+    if (p_var1 == 0) {
+        data.pressure = 0;
+    }  // Avoid division by zero
     else {
         p = 1048576 - adc_P;
         p = (((p << 31) - p_var2) * 3125) / p_var1;
         p_var1 = (((int64_t)calib_data_.dig_P9) * (p >> 13) * (p >> 13)) >> 25;
         p_var2 = (((int64_t)calib_data_.dig_P8) * p) >> 19;
         p = ((p + p_var1 + p_var2) >> 8) + (((int64_t)calib_data_.dig_P7) << 4);
-        data.pressure = (float)p / 25600.0f; // Convert to hPa
+        data.pressure = (float)p / 25600.0f;  // Convert to hPa
     }
 
     // --- HUMIDITY MATH ---
     int32_t v_x1_u32r;
     v_x1_u32r = (t_fine_ - ((int32_t)76800));
-    v_x1_u32r = (((((adc_H << 14) - (((int32_t)calib_data_.dig_H4) << 20) - (((int32_t)calib_data_.dig_H5) * v_x1_u32r)) + 
-                  ((int32_t)16384)) >> 15) * (((((((v_x1_u32r * ((int32_t)calib_data_.dig_H6)) >> 10) * (((v_x1_u32r * ((int32_t)calib_data_.dig_H3)) >> 11) + ((int32_t)32768))) >> 10) + 
-                  ((int32_t)2097152)) * ((int32_t)calib_data_.dig_H2) + 8192) >> 14));
-    v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((int32_t)calib_data_.dig_H1)) >> 4));
+    v_x1_u32r = (((((adc_H << 14) - (((int32_t)calib_data_.dig_H4) << 20) -
+                    (((int32_t)calib_data_.dig_H5) * v_x1_u32r)) +
+                   ((int32_t)16384)) >>
+                  15) *
+                 (((((((v_x1_u32r * ((int32_t)calib_data_.dig_H6)) >> 10) *
+                      (((v_x1_u32r * ((int32_t)calib_data_.dig_H3)) >> 11) + ((int32_t)32768))) >>
+                     10) +
+                    ((int32_t)2097152)) *
+                       ((int32_t)calib_data_.dig_H2) +
+                   8192) >>
+                  14));
+    v_x1_u32r =
+        (v_x1_u32r -
+         (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((int32_t)calib_data_.dig_H1)) >> 4));
     v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
     v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
     data.humidity = (float)(v_x1_u32r >> 12) / 1024.0f;
@@ -127,4 +149,4 @@ SensorData BME280::ReadData() {
     return data;
 }
 
-} // namespace edge::hal
+}  // namespace edge::hal

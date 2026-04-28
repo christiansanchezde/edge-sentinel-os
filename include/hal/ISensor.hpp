@@ -3,20 +3,20 @@
 namespace edge::hal {
 
 struct SensorData {
-    float temperature; // in Celsius
-    float humidity;    // in %
-    float pressure;    // in hPa
+    float temperature;  // in Celsius
+    float humidity;     // in %
+    float pressure;     // in hPa
 };
 
 class ISensor {
-public:
+   public:
     virtual ~ISensor() = default;
-    
+
     // Initializes the sensor (e.g., sets up I2C)
     virtual bool Init() = 0;
-    
+
     // Reads current data from the sensor
     virtual SensorData ReadData() = 0;
 };
 
-} // namespace edge::hal
+}  // namespace edge::hal

@@ -1,4 +1,5 @@
 #include "ConfigManager.hpp"
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -32,7 +33,6 @@ bool ConfigManager::Load(const std::string& filepath) {
         if (std::getline(is_line, key, '=')) {
             std::string value;
             if (std::getline(is_line, value)) {
-                
                 if (key == "I2C_BUS") {
                     current_config_.i2cBus = value;
                 } else if (key == "I2C_ADDRESS") {
@@ -44,9 +44,9 @@ bool ConfigManager::Load(const std::string& filepath) {
             }
         }
     }
-    
+
     std::cout << "[Config] Loaded configuration from " << filepath << "\n";
     return true;
 }
 
-} // namespace edge::core
+}  // namespace edge::core

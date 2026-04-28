@@ -1,9 +1,11 @@
 #include "hal/SqliteStorage.hpp"
+
 #include "Logger.hpp"
 
 namespace edge::hal {
 
-SqliteStorage::SqliteStorage(const std::string& db_path) : db_(nullptr), db_path_(db_path) {}
+SqliteStorage::SqliteStorage(const std::string& db_path) : db_(nullptr), db_path_(db_path) {
+}
 
 SqliteStorage::~SqliteStorage() {
     if (db_) {
@@ -15,7 +17,7 @@ SqliteStorage::~SqliteStorage() {
 bool SqliteStorage::ExecuteQuery(const std::string& query) {
     char* error_message = nullptr;
     int exit_code = sqlite3_exec(db_, query.c_str(), nullptr, 0, &error_message);
-    
+
     if (exit_code != SQLITE_OK) {
         LOG_ERROR("[DB] SQL Error: " << error_message);
         sqlite3_free(error_message);
@@ -35,11 +37,11 @@ bool SqliteStorage::Init() {
     ExecuteQuery("PRAGMA journal_mode=WAL;");
 
     // 2. Create the tables if they don't exist
-    std::string create_tables = 
+    std::string create_tables =
         "CREATE TABLE IF NOT EXISTS sensor_logs ("
         "id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, "
         "temperature REAL, humidity REAL, pressure REAL, anomaly_score REAL);"
-        
+
         "CREATE TABLE IF NOT EXISTS system_logs ("
         "id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, "
         "level TEXT, tag TEXT, message TEXT);";
@@ -49,12 +51,12 @@ bool SqliteStorage::Init() {
     // 3. Maintenance: Apply Retention Policy
     // Every time the app starts, we prune data older than 7 days to save disk space.
     LOG_INFO("Applying database retention policy (7 days)...");
-    
+
     ExecuteQuery("DELETE FROM sensor_logs WHERE timestamp < datetime('now', '-7 days');");
     ExecuteQuery("DELETE FROM system_logs WHERE timestamp < datetime('now', '-7 days');");
-    
+
     // Optional: Vacuum the DB to physically reclaim disk space (can be slow on large DBs)
-    // ExecuteQuery("VACUUM;"); 
+    // ExecuteQuery("VACUUM;");
 
     return true;
 }
@@ -63,12 +65,10 @@ bool SqliteStorage::LogReading(const SensorData& data, float anomaly_score) {
     std::lock_guard<std::mutex> lock(db_mutex_);
 
     // Construct the SQL INSERT statement
-    std::string insert_sql = 
+    std::string insert_sql =
         "INSERT INTO sensor_logs (temperature, humidity, pressure, anomaly_score) VALUES (" +
-        std::to_string(data.temperature) + ", " +
-        std::to_string(data.humidity) + ", " +
-        std::to_string(data.pressure) + ", " +
-        std::to_string(anomaly_score) + ");";
+        std::to_string(data.temperature) + ", " + std::to_string(data.humidity) + ", " +
+        std::to_string(data.pressure) + ", " + std::to_string(anomaly_score) + ");";
 
     bool success = ExecuteQuery(insert_sql);
     if (success) {
@@ -77,10 +77,12 @@ bool SqliteStorage::LogReading(const SensorData& data, float anomaly_score) {
     return success;
 }
 
-bool SqliteStorage::LogSystemMessage(const std::string& level, const std::string& tag, const std::string& message) {
+bool SqliteStorage::LogSystemMessage(const std::string& level, const std::string& tag,
+                                     const std::string& message) {
     std::lock_guard<std::mutex> lock(db_mutex_);
-    std::string sql = "INSERT INTO system_logs (level, tag, message) VALUES ('" + level + "', '" + tag + "', '" + message + "');";
+    std::string sql = "INSERT INTO system_logs (level, tag, message) VALUES ('" + level + "', '" +
+                      tag + "', '" + message + "');";
     return ExecuteQuery(sql);
 }
 
-} // namespace edge::hal
+}  // namespace edge::hal

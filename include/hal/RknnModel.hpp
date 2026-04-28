@@ -1,16 +1,17 @@
 #pragma once
-#include "INpuModel.hpp"
 #include <string>
+
+#include "INpuModel.hpp"
 
 namespace edge::hal {
 
 class RknnModel : public INpuModel {
-private:
+   private:
     bool is_loaded_;
     // In a full implementation, store Rockchip context variables here:
-    // rknn_context ctx_; 
+    // rknn_context ctx_;
 
-public:
+   public:
     RknnModel();
     ~RknnModel() override;
 
@@ -18,4 +19,4 @@ public:
     float RunInference(const SensorData& data) override;
 };
 
-} // namespace edge::hal
+}  // namespace edge::hal
