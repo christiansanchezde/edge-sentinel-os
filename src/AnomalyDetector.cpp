@@ -1,10 +1,12 @@
 #include "AnomalyDetector.hpp"
+
 #include "Logger.hpp"
 
 namespace edge::app {
 
-AnomalyDetector::AnomalyDetector(edge::hal::ISensor& sensor, edge::hal::INpuModel& npu) 
-    : sensor_(sensor), npu_model_(npu) {}
+AnomalyDetector::AnomalyDetector(edge::hal::ISensor& sensor, edge::hal::INpuModel& npu)
+    : sensor_(sensor), npu_model_(npu) {
+}
 
 AnomalyReport AnomalyDetector::AnalyzeData() {
     // 1. Read directly from the injected sensor
@@ -23,4 +25,4 @@ AnomalyReport AnomalyDetector::AnalyzeData() {
     return report;
 }
 
-} // namespace edge::app
+}  // namespace edge::app

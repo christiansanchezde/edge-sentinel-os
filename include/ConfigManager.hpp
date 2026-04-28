@@ -12,20 +12,20 @@ struct AppConfig {
 };
 
 class ConfigManager {
-private:
+   private:
     AppConfig current_config_;
 
     // Private constructor prevents direct instantiation
-    ConfigManager(); 
+    ConfigManager();
 
-public:
+   public:
     // Delete copy/move constructors to enforce Singleton
     ConfigManager(const ConfigManager&) = delete;
     ConfigManager& operator=(const ConfigManager&) = delete;
 
     // The single point of access
     static ConfigManager& GetInstance() {
-        static ConfigManager instance; // Guaranteed to be destroyed and instantiated on first use
+        static ConfigManager instance;  // Guaranteed to be destroyed and instantiated on first use
         return instance;
     }
 
@@ -33,7 +33,9 @@ public:
     bool Load(const std::string& filepath);
 
     // Read-only access to the configuration
-    const AppConfig& GetConfig() const { return current_config_; }
+    const AppConfig& GetConfig() const {
+        return current_config_;
+    }
 };
 
-} // namespace edge::core
+}  // namespace edge::core

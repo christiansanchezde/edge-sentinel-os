@@ -1,16 +1,23 @@
 #include "Logger.hpp"
-#include <iostream> // Added missing include
+
+#include <iostream>  // Added missing include
 
 namespace edge::core {
 
 std::string Logger::LevelToString(LogLevel level) {
     switch (level) {
-        case LogLevel::DEBUG: return "DEBUG";
-        case LogLevel::INFO:  return "INFO ";
-        case LogLevel::WARN:  return "WARN ";
-        case LogLevel::ERROR: return "ERROR";
-        case LogLevel::CRITICAL: return "CRITICAL";
-        default: return "UNKNOWN";
+        case LogLevel::DEBUG:
+            return "DEBUG";
+        case LogLevel::INFO:
+            return "INFO ";
+        case LogLevel::WARN:
+            return "WARN ";
+        case LogLevel::ERROR:
+            return "ERROR";
+        case LogLevel::CRITICAL:
+            return "CRITICAL";
+        default:
+            return "UNKNOWN";
     }
 }
 
@@ -22,7 +29,7 @@ void Logger::Log(LogLevel level, const std::string& file, int line, const std::s
 
     // Lock mutex for thread safety
     std::lock_guard<std::mutex> lock(log_mutex_);
-    
+
     // 2. Output to Terminal
     std::ostream& os = (level >= LogLevel::ERROR) ? std::cerr : std::cout;
     os << "[" << level_str << "] [" << tag << "] " << message << "\n";
@@ -31,9 +38,9 @@ void Logger::Log(LogLevel level, const std::string& file, int line, const std::s
     if (db_) {
         // Strip the trailing space from "INFO " for clean database storage
         if (level_str.back() == ' ') level_str.pop_back();
-        
+
         db_->LogSystemMessage(level_str, tag, message);
     }
 }
 
-} // namespace edge::core
+}  // namespace edge::core

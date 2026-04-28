@@ -15,7 +15,7 @@ The host machine stores the master repository, handles version control, and runs
 sudo apt update && sudo apt upgrade -y
 ```
 ```bash
-sudo apt install -y git rsync ssh cmake libsqlite3-dev
+sudo apt install -y git rsync ssh cmake libsqlite3-dev clang-format clang-tidy
 ```
 
 ## 🍊 2. Target Setup (Orange Pi 4 Pro)

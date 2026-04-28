@@ -1,26 +1,28 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
 #include <memory>
-#include "hal/ISensor.hpp"
-#include "hal/INpuModel.hpp"
+
 #include "AnomalyDetector.hpp"
+#include "hal/INpuModel.hpp"
+#include "hal/ISensor.hpp"
 
 using namespace edge::hal;
 using namespace edge::app;
+using ::testing::_;  // allows to ignore parameters in EXPECT_CALL when we don't care about them
 using ::testing::Return;
-using ::testing::_; // allows to ignore parameters in EXPECT_CALL when we don't care about them
 
 // ==========================================
 // 1. THE MOCKS
 // ==========================================
 class MockSensor : public ISensor {
-public:
+   public:
     MOCK_METHOD(bool, Init, (), (override));
     MOCK_METHOD(SensorData, ReadData, (), (override));
 };
 
 class MockNpuModel : public INpuModel {
-public:
+   public:
     MOCK_METHOD(bool, LoadModel, (const std::string& model_path), (override));
     MOCK_METHOD(float, RunInference, (const SensorData& data), (override));
 };
@@ -29,7 +31,7 @@ public:
 // 2. THE TEST FIXTURE (Setup & Helpers)
 // ==========================================
 class AnomalyDetectorTest : public ::testing::Test {
-protected:
+   protected:
     MockSensor mock_sensor_;
     MockNpuModel mock_npu_;
     std::unique_ptr<AnomalyDetector> detector_;
@@ -46,8 +48,7 @@ protected:
     }
 
     void SetMockNpuScore(float score) {
-        EXPECT_CALL(mock_npu_, RunInference(_))
-            .WillOnce(Return(score));
+        EXPECT_CALL(mock_npu_, RunInference(_)).WillOnce(Return(score));
     }
 };
 

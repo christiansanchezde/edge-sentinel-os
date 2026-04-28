@@ -1,13 +1,14 @@
-#include <memory> // For std::unique_ptr
-#include <thread>
 #include <chrono>
-#include "hal/BME280.hpp"
-#include "hal/RknnModel.hpp"
-#include "hal/SimulatedNpuModel.hpp" // Bring in the Simulator
-#include "hal/SqliteStorage.hpp"
+#include <memory>  // For std::unique_ptr
+#include <thread>
+
 #include "AnomalyDetector.hpp"
 #include "ConfigManager.hpp"
 #include "Logger.hpp"
+#include "hal/BME280.hpp"
+#include "hal/RknnModel.hpp"
+#include "hal/SimulatedNpuModel.hpp"  // Bring in the Simulator
+#include "hal/SqliteStorage.hpp"
 
 using namespace edge::hal;
 using namespace edge::app;
@@ -24,7 +25,7 @@ int main() {
     LOG_INFO("======================================");
 
     // 1. Initialize Hardware Sensor
-    BME280 my_sensor(config.i2cBus, config.i2cAddress); 
+    BME280 my_sensor(config.i2cBus, config.i2cAddress);
     if (!my_sensor.Init()) {
         LOG_CRITICAL("Sensor initialization failed. Exiting.");
         return -1;
@@ -32,7 +33,7 @@ int main() {
 
     // 2. Initialize the AI Model (Factory Pattern via Config)
     std::unique_ptr<INpuModel> ai_model;
-    
+
     if (config.aiMode == "HARDWARE") {
         LOG_INFO("Initializing Rockchip Hardware NPU...");
         ai_model = std::make_unique<RknnModel>();
@@ -61,10 +62,11 @@ int main() {
 
     // 5. Main Loop
     LOG_INFO("Entering monitoring loop...");
-    // for (int i = 0; i < 5; ++i) { 
-    for(;;) { // Infinite loop for continuous monitoring
+    // for (int i = 0; i < 5; ++i) {
+    for (;;) {  // Infinite loop for continuous monitoring
         SensorData data = my_sensor.ReadData();
-        LOG_INFO("Temp: " << data.temperature << "C, Hum: " << data.humidity << "%, Pres: " << data.pressure << " hPa");
+        LOG_INFO("Temp: " << data.temperature << "C, Hum: " << data.humidity
+                          << "%, Pres: " << data.pressure << " hPa");
 
         AnomalyReport report = detector.AnalyzeData();
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "hal/ISensor.hpp"
 #include "hal/INpuModel.hpp"
+#include "hal/ISensor.hpp"
 
 namespace edge::app {
 
@@ -10,14 +10,14 @@ struct AnomalyReport {
 };
 
 class AnomalyDetector {
-private:
+   private:
     edge::hal::ISensor& sensor_;
     edge::hal::INpuModel& npu_model_;
 
-public:
+   public:
     AnomalyDetector(edge::hal::ISensor& sensor, edge::hal::INpuModel& npu);
-    
-    AnomalyReport AnalyzeData(); 
+
+    AnomalyReport AnalyzeData();
 };
 
-} // namespace edge::app
+}  // namespace edge::app
