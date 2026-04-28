@@ -77,6 +77,12 @@ function run_stack() {
     wait
 }
 
+function format() {
+    echo "[System] Formatting code with clang-format..."
+    find src include tests -name "*.cpp" -o -name "*.hpp" | xargs clang-format -i
+    echo "[System] Done."
+}
+
 # --- Command Line Argument Parsing ---
 case "$1" in
     build)
@@ -96,6 +102,9 @@ case "$1" in
     run)
         run_stack
         ;;
+    format)
+        format
+        ;;
     *)
         echo "Usage: $0 {build|test|clean|all|run}"
         echo "  build : Compiles the C++ source code"
@@ -103,6 +112,7 @@ case "$1" in
         echo "  clean : Removes the build directory"
         echo "  all   : Cleans, builds, and runs tests"
         echo "  run   : Launches both the C++ OS and the Python Web UI"
+        echo "  format: Formats code using clang-format (.clang-format file)"
         exit 1
         ;;
 esac

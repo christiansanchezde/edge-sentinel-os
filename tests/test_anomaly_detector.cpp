@@ -8,7 +8,7 @@
 using namespace edge::hal;
 using namespace edge::app;
 using ::testing::Return;
-using ::testing::_;
+using ::testing::_; // allows to ignore parameters in EXPECT_CALL when we don't care about them
 
 // ==========================================
 // 1. THE MOCKS
