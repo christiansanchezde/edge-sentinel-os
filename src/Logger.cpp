@@ -1,4 +1,5 @@
 #include "Logger.hpp"
+
 #include <iostream>
 
 namespace edge::core {
@@ -29,7 +30,7 @@ void Logger::ProcessLogs() {
     LogEntry entry;
     while (log_queue_.Pop(entry)) {
         std::string level_str = LevelToString(entry.level);
-        
+
         // 1. Output to Terminal (Background thread handles the slow I/O)
         std::ostream& os = (entry.level >= LogLevel::ERROR) ? std::cerr : std::cout;
         os << "[" << level_str << "] [" << entry.tag << "] " << entry.message << std::endl;
@@ -39,7 +40,7 @@ void Logger::ProcessLogs() {
             // Clean the string for DB (e.g. "INFO " -> "INFO")
             std::string clean_level = level_str;
             if (!clean_level.empty() && clean_level.back() == ' ') clean_level.pop_back();
-            
+
             db_->LogSystemMessage(clean_level, entry.tag, entry.message);
         }
     }
@@ -47,25 +48,32 @@ void Logger::ProcessLogs() {
 
 void Logger::PruneOldData(int days_to_keep) {
     if (!db_) return;
-    
+
     // This runs on whichever thread calls it (usually during startup)
     // We'll assume your IDatabase has a generic Execute method for raw SQL
-    std::string query = "DELETE FROM logs WHERE timestamp < datetime('now', '-" + 
+    std::string query = "DELETE FROM logs WHERE timestamp < datetime('now', '-" +
                         std::to_string(days_to_keep) + " days');";
-    
+
     // Note: You'll need to add a method like ExecuteRawQuery to your IDatabase interface
     // For now, we can log that the janitor is starting
-    this->Log(LogLevel::INFO, __FILE__, __LINE__, "Janitor: Cleaning logs older than " + std::to_string(days_to_keep) + " days...");
+    this->Log(LogLevel::INFO, __FILE__, __LINE__,
+              "Janitor: Cleaning logs older than " + std::to_string(days_to_keep) + " days...");
 }
 
 std::string Logger::LevelToString(LogLevel level) {
     switch (level) {
-        case LogLevel::DEBUG:    return "DEBUG";
-        case LogLevel::INFO:     return "INFO ";
-        case LogLevel::WARN:     return "WARN ";
-        case LogLevel::ERROR:    return "ERROR";
-        case LogLevel::CRITICAL: return "CRITICAL";
-        default:                 return "UNKNOWN";
+        case LogLevel::DEBUG:
+            return "DEBUG";
+        case LogLevel::INFO:
+            return "INFO ";
+        case LogLevel::WARN:
+            return "WARN ";
+        case LogLevel::ERROR:
+            return "ERROR";
+        case LogLevel::CRITICAL:
+            return "CRITICAL";
+        default:
+            return "UNKNOWN";
     }
 }
 

@@ -52,10 +52,10 @@ int main() {
     // 5. Setup Async Logger & Janitor
     auto& logger = edge::core::Logger::GetInstance();
     logger.SetDatabase(&local_db);
-    
+
     // ARCHITECT NOTE: Run Janitor BEFORE the loop to clear space.
     // This executes synchronously to ensure we have disk space before logging starts.
-    logger.PruneOldData(30); 
+    logger.PruneOldData(30);
 
     LOG_INFO("======================================");
     LOG_INFO(" Edge Sentinel OS (" << config.aiMode << " AI)");
@@ -70,7 +70,7 @@ int main() {
     for (;;) {
         // A. Read Sensor (Hardware I/O)
         SensorData data = my_sensor.ReadData();
-        
+
         // B. Log to Async Queue (Non-blocking)
         LOG_INFO("Temp: " << data.temperature << "C, Hum: " << data.humidity
                           << "%, Pres: " << data.pressure << " hPa");

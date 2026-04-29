@@ -32,17 +32,17 @@ struct LogEntry {
 class Logger {
    private:
     edge::hal::IDatabase* db_ = nullptr;
-    
+
     // Asynchronous components
     SafeQueue<LogEntry> log_queue_;
     std::thread worker_thread_;
     std::atomic<bool> running_{false};
 
-    Logger(); // Thread starts here
-    ~Logger(); // Thread stops here
-    
+    Logger();   // Thread starts here
+    ~Logger();  // Thread stops here
+
     std::string LevelToString(LogLevel level);
-    void ProcessLogs(); // The background worker loop
+    void ProcessLogs();  // The background worker loop
 
    public:
     Logger(const Logger&) = delete;
@@ -118,4 +118,3 @@ class Logger {
         edge::core::Logger::GetInstance().Log(edge::core::LogLevel::CRITICAL, __FILE__, __LINE__, \
                                               oss.str());                                         \
     } while (0)
-    
