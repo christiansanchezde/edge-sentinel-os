@@ -4,6 +4,7 @@
 #include <string>
 
 #include "hal/IDatabase.hpp"
+#include "utils/SafeQueue.hpp"
 
 // Compile-time log levels
 #define LOG_LEVEL_DEBUG 0
@@ -21,13 +22,27 @@ namespace edge::core {
 
 enum class LogLevel { DEBUG = 0, INFO = 1, WARN = 2, ERROR = 3, CRITICAL = 4 };
 
+// Structure to carry log data across threads
+struct LogEntry {
+    LogLevel level;
+    std::string tag;
+    std::string message;
+};
+
 class Logger {
    private:
-    std::mutex log_mutex_;
     edge::hal::IDatabase* db_ = nullptr;
+    
+    // Asynchronous components
+    SafeQueue<LogEntry> log_queue_;
+    std::thread worker_thread_;
+    std::atomic<bool> running_{false};
 
-    Logger() = default;
+    Logger(); // Thread starts here
+    ~Logger(); // Thread stops here
+    
     std::string LevelToString(LogLevel level);
+    void ProcessLogs(); // The background worker loop
 
    public:
     Logger(const Logger&) = delete;
@@ -41,6 +56,11 @@ class Logger {
     void SetDatabase(edge::hal::IDatabase* db) {
         db_ = db;
     }
+
+    // The Janitor: Prunes data older than X days
+    void PruneOldData(int days_to_keep);
+
+    // Now this is "Fire and Forget"
     void Log(LogLevel level, const std::string& file, int line, const std::string& message);
 };
 
@@ -98,3 +118,4 @@ class Logger {
         edge::core::Logger::GetInstance().Log(edge::core::LogLevel::CRITICAL, __FILE__, __LINE__, \
                                               oss.str());                                         \
     } while (0)
+    
