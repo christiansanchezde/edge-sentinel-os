@@ -19,6 +19,11 @@ class UI {
 
         this.chartInstance = null;
         this.initChart();
+
+        // Force set the initial theme based on the HTML selection
+        const initialTheme = document.getElementById('themeSelect').value;
+        this.setTheme(initialTheme);
+
     }
 
     initChart() {
