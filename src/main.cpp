@@ -5,8 +5,8 @@
 #include "AnomalyDetector.hpp"
 #include "ConfigManager.hpp"
 #include "Logger.hpp"
+#include "hal/AipuModel.hpp"
 #include "hal/BME280.hpp"
-#include "hal/RknnModel.hpp"
 #include "hal/SimulatedNpuModel.hpp"
 #include "hal/SqliteStorage.hpp"
 
@@ -31,7 +31,7 @@ int main() {
     std::unique_ptr<INpuModel> ai_model;
     if (config.aiMode == "HARDWARE") {
         LOG_INFO("Initializing Rockchip Hardware NPU...");
-        ai_model = std::make_unique<RknnModel>();
+        ai_model = std::make_unique<AipuModel>();
     } else {
         LOG_INFO("Initializing Software Simulated NPU...");
         ai_model = std::make_unique<SimulatedNpuModel>();

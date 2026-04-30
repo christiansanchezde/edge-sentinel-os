@@ -1,25 +1,28 @@
-#include "hal/RknnModel.hpp"
+#include "hal/AipuModel.hpp"
 
 #include "Logger.hpp"
 
 namespace edge::hal {
 
-RknnModel::RknnModel() : is_loaded_(false) {
+
+// 3TOPS NPU based on the Zhouyi AIPU (Arm) architecture.
+
+AipuModel::AipuModel() : is_loaded_(false) {
 }
 
-RknnModel::~RknnModel() {
+AipuModel::~AipuModel() {
     if (is_loaded_) {
-        // rknn_destroy(ctx_);
+        // aipu_destroy(ctx_);
         LOG_INFO("[NPU] Rockchip NPU context destroyed safely.");
     }
 }
 
-bool RknnModel::LoadModel(const std::string& model_path) {
+bool AipuModel::LoadModel(const std::string& model_path) {
     LOG_INFO("[NPU] Attempting to load model from: " << model_path);
 
-    // --- MOCK RKNN C-API IMPLEMENTATION ---
+    // --- MOCK AIPU C-API IMPLEMENTATION ---
     // Here is where you would call:
-    // int ret = rknn_init(&ctx_, model_data, model_size, 0, NULL);
+    // int ret = aipu_init(&ctx_, model_data, model_size, 0, NULL);
 
     // For this portfolio PoC, we simulate a successful NPU load
     is_loaded_ = true;
@@ -27,7 +30,7 @@ bool RknnModel::LoadModel(const std::string& model_path) {
     return true;
 }
 
-float RknnModel::RunInference(const SensorData& data) {
+float AipuModel::RunInference(const SensorData& data) {
     if (!is_loaded_) {
         LOG_ERROR("[NPU] Cannot run inference. Model not loaded!");
         return 0.0f;
@@ -35,7 +38,7 @@ float RknnModel::RunInference(const SensorData& data) {
 
     LOG_DEBUG("[NPU] Feeding tensor data to NPU...");
 
-    // TODO: Implement rknn_inputs_set() and rknn_run() API here
+    // TODO: Implement aipu_inputs_set() and aipu_run() API here
 
     return 0.0f;
 }
