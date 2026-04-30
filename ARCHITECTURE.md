@@ -57,6 +57,12 @@ graph TD
    - `INpuModel`: Interface for Edge AI anomaly detection.
    - `IDatabase`: Interface for local persistence (Implemented by `SqliteStorage`).
 4. **Presentation Layer (Python):** A lightweight web server reading the SQLite DB to serve dashboards.
+5. **Concurrency & Background Workers** To maintain a deterministic 2Hz sensor polling rate, the system utilizes a Producer-Consumer pattern for high-latency I/O tasks:
+    - Asynchronous Logging: The Logger utilizes a background worker thread and a SafeQueue. This prevents the main sensor loop from stalling if the SQLite database or SD card experiences I/O latency.
+    - Thread Safety: A templated SafeQueue wrapper utilizing std::mutex and std::condition_variable ensures thread-safe communication between the high-speed main thread and the logging worker.
+
+
+
 
 ## Class Diagram: Dependency Injection & Patterns
 
@@ -129,12 +135,28 @@ classDiagram
         +Load(string) bool
     }
 
+    class SafeQueue {
+        <<template>>
+        -queue_ T
+        -mutex_ mutex
+        -cond_var_ condition_variable
+        +Push(T) void
+        +Pop(T&) bool
+        +Shutdown() void
+    }
+
     class Logger {
         <<Singleton>>
-        -LogLevel currentLevel
+        -log_queue_ SafeQueue
+        -worker_thread_ thread
+        -running_ atomic_bool
         +getInstance() Logger&
-        +log(...) void
+        +Log(...) void
+        -ProcessLogs() void  %% Background worker function
+        +PruneOldData(int) void
     }
+
+    Logger o-- SafeQueue : Utilizes
 
     %% Relationships
     AnomalyDetector ..> AnomalyReport : Returns
@@ -173,35 +195,33 @@ The user interface is designed for physical edge deployments (touchscreens in in
 Since the C++ Sentinel service and the Python Web UI run as independent processes, **SQLite3** is utilized as a high-concurrency data bridge.
 
 * **Concurrency Control:** The database uses **Write-Ahead Logging (WAL)** mode. This allows the Python Flask API to perform non-blocking reads of the sensor and system logs while the C++ core continues to write real-time data.
-* **Storage Management:** To protect the edge device's SD card, a **7-day retention policy** is enforced at every application startup.
+* **Storage Management:** To protect the edge device's SD card, a **30-day retention policy** is enforced at every application startup.
 * **Database Schema:**
-
 
 | Table | Purpose | Frequency |
 | :--- | :--- | :--- |
 | `sensor_logs` | Stores raw telemetry and AI inference results. | Every 2 seconds |
 | `system_logs` | Stores internal C++ application events (Log Levels). | As needed |
 
-
-
-
-
+> Note: Pruning is performed synchronously at application startup to ensure sufficient disk space before the high-speed monitoring loop begins
 
 
 ```mermaid
 sequenceDiagram
     participant HW as BME280 Sensor
-    participant CPP as C++ App (Sentinel)
+    participant Main as main.cpp (Main Thread)
+    participant Q as SafeQueue (RAM)
+    participant Worker as Logger Worker (Thread)
     participant DB as SQLite (Disk)
-    participant PY as Python API (Flask)
-    participant UI as Web Dashboard
 
-    CPP->>HW: Read I2C Data
-    CPP->>DB: INSERT into sensor_logs
-    CPP->>DB: LOG_INFO ("Read successful") -> INSERT into system_logs
-    Note over DB: WAL Mode allows concurrent access
-    UI->>PY: GET /api/data
-    PY->>DB: SELECT * FROM sensor_logs
-    DB-->>PY: Result Set
-    PY-->>UI: JSON Data
-    ```
+    Main->>HW: Read I2C Data
+    Main->>Q: Push(LogEntry)
+    Note right of Main: Main thread continues instantly
+    
+    Q-->>Worker: Pop(LogEntry)
+    Worker->>DB: INSERT into system_logs
+    
+    Main->>Main: detector.AnalyzeData()
+    Main->>DB: LogReading() (Data Persistence)
+    Main->>Main: sleep(2s)
+```

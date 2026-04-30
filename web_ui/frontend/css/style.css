@@ -1,4 +1,24 @@
 :root {
+    /* LIGHT MODE: ISA-101 Industrial Gray with Blue Accents */
+    --hmi-bg-base: #C8C8CC;         /* Mid-light gray canvas */
+    --hmi-panel-bg: #E4E4E6;        /* Flat light-gray panels */
+    --hmi-border-contrast: #8E8E93; /* Stronger borders for contrast */
+    --hmi-border-muted: #C7C7CC;    /* Soft dividers */
+    
+    --hmi-text-main: #1C1C1E;       /* Near-black for readability */
+    --hmi-text-muted: #48484A;      /* Dark gray for labels */
+    
+    --hmi-accent-color: #005A9E;    /* Professional Corporate Blue */
+    --hmi-log-bg: #FFFFFF;
+
+    /* Trend Charting Palette (Darker colors to stand out on gray) */
+    --plot-line-1: #0056B3;         /* Deep Blue */
+    --plot-line-2: #0B8043;         /* Forest Green */
+    --plot-line-3: #8E24AA;         /* Deep Purple */
+    --plot-line-4: #D84315;         /* Burnt Orange */
+}
+
+[data-theme="dark"] {
     /* Modern Industrial Slate/Blue Theme (Dark Mode) */
     --hmi-bg-base: #0F172A;         /* Deep Navy/Slate background */
     --hmi-panel-bg: #1E293B;        /* Lighter Slate for cards/panels */
@@ -18,25 +38,6 @@
     --plot-line-4: #FBBF24; /* Amber */
 }
 
-/* LIGHT MODE: ISA-101 Industrial Gray with Blue Accents */
-[data-theme="light"] {
-    --hmi-bg-base: #C8C8CC;         /* Mid-light gray canvas */
-    --hmi-panel-bg: #E4E4E6;        /* Flat light-gray panels */
-    --hmi-border-contrast: #8E8E93; /* Stronger borders for contrast */
-    --hmi-border-muted: #C7C7CC;    /* Soft dividers */
-    
-    --hmi-text-main: #1C1C1E;       /* Near-black for readability */
-    --hmi-text-muted: #48484A;      /* Dark gray for labels */
-    
-    --hmi-accent-color: #005A9E;    /* Professional Corporate Blue */
-    --hmi-log-bg: #FFFFFF;
-
-    /* Trend Charting Palette (Darker colors to stand out on gray) */
-    --plot-line-1: #0056B3;         /* Deep Blue */
-    --plot-line-2: #0B8043;         /* Forest Green */
-    --plot-line-3: #8E24AA;         /* Deep Purple */
-    --plot-line-4: #D84315;         /* Burnt Orange */
-}
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
 body { background-color: var(--hmi-bg-base); color: var(--hmi-text-main); overflow: hidden; }

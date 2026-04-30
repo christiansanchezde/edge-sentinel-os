@@ -19,6 +19,11 @@ class UI {
 
         this.chartInstance = null;
         this.initChart();
+
+        // Force set the initial theme based on the HTML selection
+        const initialTheme = document.getElementById('themeSelect').value;
+        this.setTheme(initialTheme);
+
     }
 
     initChart() {
@@ -64,12 +69,34 @@ class UI {
     }
 
     updateLogs(logs) {
-        this.logContainer.innerHTML = logs.map(log => 
-            `<div class="log-entry">
-                <span class="log-time">[${new Date(log.time).toLocaleTimeString()}]</span>
-                <span class="log-msg ${log.msg.includes('CRITICAL') ? 'critical' : ''}">${log.msg}</span>
-             </div>`
-        ).join('');
+        if (!this.logContainer) return;
+
+        // 1. Check if the user is currently at the bottom BEFORE adding new content
+        // We add a 10px "buffer" to account for sub-pixel rounding in different browsers
+        const isAtBottom = (this.logContainer.scrollHeight - this.logContainer.scrollTop) <= (this.logContainer.clientHeight + 10);
+
+        if (!logs || logs.length === 0) {
+            this.logContainer.innerHTML = '<div class="log-entry" style="opacity: 0.5;">No system events recorded.</div>';
+            return;
+        }
+
+        // 2. Render the logs
+        this.logContainer.innerHTML = logs.map(log => {
+            const timeStr = log.time || log.timestamp || new Date().toISOString();
+            const msgStr = log.msg || log.message || "Unknown event";
+            const isCritical = msgStr.includes('CRITICAL') || msgStr.includes('ERROR');
+            
+            return `
+                <div class="log-entry ${isCritical ? 'critical' : ''}">
+                    <span class="log-time">[${new Date(timeStr).toLocaleTimeString()}]</span>
+                    <span class="log-msg">${msgStr}</span>
+                </div>`;
+        }).join('');
+
+        // 3. ONLY auto-scroll if the user was already at the bottom
+        if (isAtBottom) {
+            this.logContainer.scrollTop = this.logContainer.scrollHeight;
+        }
     }
 
     toggleSidebar() { document.getElementById('configSidebar').classList.toggle('collapsed'); }
