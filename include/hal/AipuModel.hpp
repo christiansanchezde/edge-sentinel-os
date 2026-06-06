@@ -5,6 +5,7 @@
 
 namespace edge::hal {
 
+// Artificial Intelligence Processing Unit
 class AipuModel : public INpuModel {
    private:
     bool is_loaded_;
