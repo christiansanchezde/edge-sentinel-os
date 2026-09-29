@@ -6,6 +6,8 @@ This is a personal project developed during my parental leave. In the limited fr
 
 Edge Sentinel OS is a C++ Linux application designed for edge computing and AI inference. Running on an Orange Pi 4 Pro, it collects environmental data (BME280), stores it locally via SQLite, and utilizes the onboard NPU for real-time anomaly detection. A Python-based Web UI provides visualization.
 
+![web ui](/docs/edge-sentinel-demo.gif)
+
 ## Documentation
 * [System Architecture](ARCHITECTURE.md) - Details on the C++ HAL, Dependency Injection, and Mermaid diagrams.
 * [Hardware Setup](SETUP.md) - Instructions for WSL rsync, SSH keys, and Orange Pi configuration.
