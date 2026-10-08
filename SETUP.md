@@ -15,7 +15,7 @@ The host machine stores the master repository, handles version control, and runs
 sudo apt update && sudo apt upgrade -y
 ```
 ```bash
-sudo apt install -y git rsync ssh cmake
+sudo apt install -y git rsync ssh cmake libsqlite3-dev clang-format clang-tidy
 ```
 
 ## 🍊 2. Target Setup (Orange Pi 4 Pro)
@@ -86,3 +86,70 @@ Once wired and the I2C bus is enabled via `orangepi-config`, boot the Pi and use
 ```bash
 sudo i2cdetect -y 0
 ```
+
+## 🌐 Full Stack Execution & UI Testing
+
+Edge Sentinel OS consists of a C++ data acquisition backend and a Python/Flask UI frontend. They communicate via a shared SQLite database. 
+
+### Option A: Local Testing (Ubuntu WSL)
+You can run the entire pipeline on your development machine using the Simulated AI and mock I2C driver.
+
+1. **Start the C++ Backend:**
+   In your WSL terminal, compile and run the project locally. This will create and begin writing data to `edge_data.sqlite`.
+   ```bash
+   cd edge-sentinel-os
+   ./manage.sh build
+   ./build/src/edge-sentinel-os
+    ```
+2. **Start the Python Flask Server:**
+    Open a second WSL terminal window. Install Flask (if not already installed) and run the backend API.
+    ```bash
+    cd edge-sentinel-os
+    pip install flask
+    python3 web_ui/backend/app.py
+    ```
+
+3. **View the Dashboard:**
+    Open your host machine's web browser and navigate to: http://localhost:5000
+
+### Option B: Target Execution (Orange Pi 4 Pro)
+To run the production build on the edge device using the real hardware NPU and BME280 sensor.
+
+1. **Deploy and Run the C++ Backend:**
+   Sync your code via VS Code (`Ctrl+Shift+B`). SSH into the Orange Pi and start the binary with root privileges (required for hardware access).
+   ```bash
+   cd ~/edge-sentinel-os
+   sudo ./build/src/edge-sentinel-os
+   ```
+2. **Start the Python Flask Server:**
+   Open a *second* SSH session to the Orange Pi and start the web UI.
+   ```bash
+   cd ~/edge-sentinel-os
+   python3 web_ui/backend/app.py
+   ```
+3. **View the Dashboard from any device on the network:**
+   Open a web browser on your PC or phone and enter the Orange Pi's IP address:
+   `http://<ORANGE_PI_IP_ADDRESS>:5000`
+
+### Option C: VS Code Live Preview (UI Editing Mode)
+If you are modifying the HTML/CSS/JS and want real-time feedback without running the Python server:
+1. Install the **"Live Preview"** extension by Microsoft in VS Code.
+2. Right-click `web_ui/frontend/index.html` in the file explorer and select **"Show Preview"**.
+3. The UI will render locally in VS Code and populate with simulated mock data automatically.
+
+
+### 🌐 Web Server Dependencies
+
+The Presentation Layer requires Python 3 and Flask to serve the API and dashboard. Since Ubuntu 24.04 enforces system-wide Python environment protection (PEP 668), it is recommended to install Flask via the official `apt` repository rather than `pip`.
+
+Run the following command on the Orange Pi to install the required web framework:
+```bash
+sudo apt update
+sudo apt install python3-flask
+```
+
+#### Troubleshooting
+
+make sure the port 5000 or the port where the web api is executed is not blocked by the ubuntu firewall.
+
+

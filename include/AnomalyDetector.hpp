@@ -1,17 +1,23 @@
 #pragma once
+#include "hal/INpuModel.hpp"
 #include "hal/ISensor.hpp"
 
 namespace edge::app {
 
-class AnomalyDetector {
-private:
-    edge::hal::ISensor& sensor_; // Dependency Injection
-
-public:
-    // Explicit constructor to prevent accidental implicit conversions
-    explicit AnomalyDetector(edge::hal::ISensor& s);
-    
-    bool CheckForFire();
+struct AnomalyReport {
+    bool anomaly_detected;
+    float ai_score;
 };
 
-} // namespace edge::app
+class AnomalyDetector {
+   private:
+    edge::hal::ISensor& sensor_;
+    edge::hal::INpuModel& npu_model_;
+
+   public:
+    AnomalyDetector(edge::hal::ISensor& sensor, edge::hal::INpuModel& npu);
+
+    AnomalyReport AnalyzeData();
+};
+
+}  // namespace edge::app
