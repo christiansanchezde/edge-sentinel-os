@@ -1,6 +1,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <limits>
 #include <memory>
 
 #include "AnomalyDetector.hpp"
@@ -80,4 +82,60 @@ TEST_F(AnomalyDetectorTest, NoAlarmOnNormalScore) {
     // Assert
     EXPECT_FALSE(report.anomaly_detected);
     EXPECT_FLOAT_EQ(report.ai_score, 0.10f);
+}
+
+TEST_F(AnomalyDetectorTest, ExactlyAtThresholdDoesNotTriggerAlarm) {
+    SetMockSensorData(22.0f, 40.0f, 1013.0f);
+    SetMockNpuScore(0.80f);
+
+    AnomalyReport report = detector_->AnalyzeData();
+
+    EXPECT_FALSE(report.anomaly_detected);
+    EXPECT_FLOAT_EQ(report.ai_score, 0.80f);
+}
+
+TEST_F(AnomalyDetectorTest, SlightlyAboveThresholdTriggersAlarm) {
+    const float score = std::nextafter(0.80f, 1.0f);
+    SetMockSensorData(22.0f, 40.0f, 1013.0f);
+    SetMockNpuScore(score);
+
+    AnomalyReport report = detector_->AnalyzeData();
+
+    EXPECT_TRUE(report.anomaly_detected);
+    EXPECT_FLOAT_EQ(report.ai_score, score);
+}
+
+TEST_F(AnomalyDetectorTest, NegativeScoreDoesNotTriggerAlarm) {
+    SetMockSensorData(22.0f, 40.0f, 1013.0f);
+    SetMockNpuScore(-0.10f);
+
+    AnomalyReport report = detector_->AnalyzeData();
+
+    EXPECT_FALSE(report.anomaly_detected);
+    EXPECT_FLOAT_EQ(report.ai_score, -0.10f);
+}
+
+TEST_F(AnomalyDetectorTest, EvaluatesConsecutiveReadingsIndependently) {
+    EXPECT_CALL(mock_sensor_, ReadData())
+        .WillOnce(Return(SensorData{22.0f, 40.0f, 1013.0f}))
+        .WillOnce(Return(SensorData{60.0f, 20.0f, 1013.0f}));
+    EXPECT_CALL(mock_npu_, RunInference(_)).WillOnce(Return(0.79f)).WillOnce(Return(0.81f));
+
+    AnomalyReport normal = detector_->AnalyzeData();
+    AnomalyReport anomaly = detector_->AnalyzeData();
+
+    EXPECT_FALSE(normal.anomaly_detected);
+    EXPECT_FLOAT_EQ(normal.ai_score, 0.79f);
+    EXPECT_TRUE(anomaly.anomaly_detected);
+    EXPECT_FLOAT_EQ(anomaly.ai_score, 0.81f);
+}
+
+TEST_F(AnomalyDetectorTest, NaNScoreDoesNotTriggerAlarm) {
+    SetMockSensorData(22.0f, 40.0f, 1013.0f);
+    SetMockNpuScore(std::numeric_limits<float>::quiet_NaN());
+
+    AnomalyReport report = detector_->AnalyzeData();
+
+    EXPECT_FALSE(report.anomaly_detected);
+    EXPECT_TRUE(std::isnan(report.ai_score));
 }
