@@ -4,7 +4,7 @@
         {
             "label": "1. Sync Code to Target",
             "type": "shell",
-            "command": "rsync -avz --exclude '.git' --exclude 'build' --exclude '.vscode' ./ orangepi@192.168.10.10:~/edge-sentinel-os/",
+            "command": "rsync -avz --exclude '.git' --exclude 'build' --exclude '.vscode' ./ [YOUR_ORANGE_PI@YOUR_TARGET_IP]:~/edge-sentinel-os/",
             "presentation": {
                 "reveal": "always",
                 "panel": "shared"
@@ -14,7 +14,7 @@
         {
             "label": "2. Build on Target",
             "type": "shell",
-            "command": "ssh orangepi@192.168.10.10 'cd ~/edge-sentinel-os && mkdir -p build && cd build && cmake .. && make -j4 && ./tests/unit_tests'",
+            "command": "ssh [YOUR_ORANGE_PI@YOUR_TARGET_IP] 'cd ~/edge-sentinel-os && mkdir -p build && cd build && cmake .. && make -j4 && ./tests/unit_tests'",
             "dependsOn": "1. Sync Code to Target",
             "group": {
                 "kind": "build",
